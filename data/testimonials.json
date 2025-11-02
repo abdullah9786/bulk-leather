@@ -1,0 +1,31 @@
+[
+  {
+    "id": "t1",
+    "name": "Michael Chen",
+    "company": "Luxe Retail Group",
+    "role": "Procurement Director",
+    "content": "We've been sourcing from Bulk Leather for over three years. Their quality is unmatched, and the MOQ flexibility has been crucial for our boutique expansion strategy."
+  },
+  {
+    "id": "t2",
+    "name": "Sarah Williams",
+    "company": "Urban Fashion Collective",
+    "role": "Head Buyer",
+    "content": "The craftsmanship and attention to detail in every piece is exceptional. Our customers consistently rave about the quality of these leather products."
+  },
+  {
+    "id": "t3",
+    "name": "David Rodriguez",
+    "company": "Global Distributors Inc.",
+    "role": "VP of Operations",
+    "content": "Reliable, professional, and consistent quality. Bulk Leather has become our go-to supplier for premium leather goods across multiple markets."
+  },
+  {
+    "id": "t4",
+    "name": "Emma Thompson",
+    "company": "Heritage & Co.",
+    "role": "Owner",
+    "content": "From sample requests to bulk orders, the entire process is seamless. The team understands the needs of wholesalers and retailers perfectly."
+  }
+]
+

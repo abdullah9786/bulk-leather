@@ -1,0 +1,265 @@
+[
+  {
+    "id": "p1",
+    "name": "Executive Leather Briefcase",
+    "category": "bags",
+    "description": "Premium full-grain leather briefcase with reinforced stitching and brass hardware. Perfect for professionals seeking elegance and durability.",
+    "material": "Full-Grain Italian Leather",
+    "images": [
+      "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=800",
+      "https://images.unsplash.com/photo-1590874103328-eac38a683ce7?w=800",
+      "https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=800"
+    ],
+    "moq": 50,
+    "priceRange": "$85 - $120",
+    "features": [
+      "Full-grain Italian leather",
+      "Multiple compartments",
+      "Brass hardware",
+      "Reinforced stitching",
+      "Laptop sleeve (15.6\")"
+    ],
+    "colors": ["Black", "Dark Brown", "Tan", "Cognac"],
+    "sizes": ["Standard (16x12x4 inches)"]
+  },
+  {
+    "id": "p2",
+    "name": "Classic Leather Jacket",
+    "category": "jackets",
+    "description": "Timeless motorcycle-style leather jacket crafted from premium cowhide. Features asymmetric zipper and quilted shoulders.",
+    "material": "Premium Cowhide Leather",
+    "images": [
+      "https://images.unsplash.com/photo-1551028719-00167b16eac5?w=800",
+      "https://images.unsplash.com/photo-1520975954732-35dd22299614?w=800",
+      "https://images.unsplash.com/photo-1591047139829-d91aecb6caea?w=800"
+    ],
+    "moq": 30,
+    "priceRange": "$150 - $220",
+    "features": [
+      "Premium cowhide leather",
+      "Quilted shoulders",
+      "YKK zippers",
+      "Interior pockets",
+      "Polyester lining"
+    ],
+    "colors": ["Black", "Brown", "Burgundy"],
+    "sizes": ["S", "M", "L", "XL", "XXL"]
+  },
+  {
+    "id": "p3",
+    "name": "Minimalist Bifold Wallet",
+    "category": "wallets",
+    "description": "Sleek bifold wallet with RFID protection. Compact design holds up to 8 cards and cash without bulk.",
+    "material": "Top-Grain Leather",
+    "images": [
+      "https://images.unsplash.com/photo-1627123424574-724758594e93?w=800",
+      "https://images.unsplash.com/photo-1606107557195-0e29a4b5b4aa?w=800",
+      "https://images.unsplash.com/photo-1627123424428-4d0a3e92f2fe?w=800"
+    ],
+    "moq": 100,
+    "priceRange": "$15 - $28",
+    "features": [
+      "RFID protection",
+      "Compact design",
+      "8 card slots",
+      "Bill compartment",
+      "Contrast stitching"
+    ],
+    "colors": ["Black", "Navy", "Brown", "Tan"]
+  },
+  {
+    "id": "p4",
+    "name": "Premium Leather Belt",
+    "category": "belts",
+    "description": "Reversible leather belt with dual finish. Features solid brass buckle and extends up to 44 inches.",
+    "material": "Genuine Leather (Reversible)",
+    "images": [
+      "https://images.unsplash.com/photo-1664286022075-8e997e95bd17?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=2370",
+      "https://images.unsplash.com/photo-1664286022075-8e997e95bd17?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=2370"
+    ],
+    "moq": 150,
+    "priceRange": "$12 - $22",
+    "features": [
+      "Reversible design",
+      "Brass buckle",
+      "Adjustable fit",
+      "1.5 inch width",
+      "Durable stitching"
+    ],
+    "colors": ["Black/Brown Reversible", "Black/Tan Reversible"]
+  },
+  {
+    "id": "p5",
+    "name": "Leather Laptop Backpack",
+    "category": "bags",
+    "description": "Modern leather backpack with padded laptop compartment and multiple organizational pockets. Combines style with functionality.",
+    "material": "Full-Grain Leather with Canvas Lining",
+    "images": [
+      "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=800",
+      "https://images.unsplash.com/photo-1622560480654-d96214fdc887?w=800",
+      "https://images.unsplash.com/photo-1622560481122-748801e0e846?w=800"
+    ],
+    "moq": 40,
+    "priceRange": "$95 - $145",
+    "features": [
+      "Padded laptop sleeve (17\")",
+      "Multiple pockets",
+      "Adjustable straps",
+      "Top handle",
+      "Water-resistant lining"
+    ],
+    "colors": ["Black", "Brown", "Vintage Tan"],
+    "sizes": ["Standard (18x13x6 inches)"]
+  },
+  {
+    "id": "p6",
+    "name": "Artisan Leather Tote Bag",
+    "category": "bags",
+    "description": "Spacious handcrafted tote with reinforced handles. Ideal for everyday use or professional settings.",
+    "material": "Vegetable-Tanned Leather",
+    "images": [
+      "https://images.unsplash.com/photo-1564422170194-896b89110ef8?w=800",
+      "https://images.unsplash.com/photo-1590874103328-eac38a683ce7?w=800"
+    ],
+    "moq": 60,
+    "priceRange": "$65 - $95",
+    "features": [
+      "Vegetable-tanned leather",
+      "Reinforced handles",
+      "Interior pocket",
+      "Magnetic snap closure",
+      "Spacious interior"
+    ],
+    "colors": ["Caramel", "Tan", "Cognac", "Natural"]
+  },
+  {
+    "id": "p7",
+    "name": "Luxury Watch Strap",
+    "category": "accessories",
+    "description": "Handmade leather watch strap with quick-release spring bars. Compatible with most 18mm-24mm watches.",
+    "material": "Genuine Italian Leather",
+    "images": [
+      "https://images.unsplash.com/photo-1524592094714-0f0654e20314?w=800",
+      "https://images.unsplash.com/photo-1509941943102-10c232535736?w=800"
+    ],
+    "moq": 200,
+    "priceRange": "$8 - $18",
+    "features": [
+      "Quick-release pins",
+      "Italian leather",
+      "Hand-stitched",
+      "Multiple sizes (18-24mm)",
+      "Stainless steel buckle"
+    ],
+    "colors": ["Black", "Brown", "Navy", "Burgundy", "Tan"]
+  },
+  {
+    "id": "p8",
+    "name": "Designer Leather Crossbody",
+    "category": "bags",
+    "description": "Compact crossbody bag with adjustable strap. Perfect blend of fashion and function for daily essentials.",
+    "material": "Soft Nappa Leather",
+    "images": [
+      "https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=800",
+      "https://images.unsplash.com/photo-1564422170194-896b89110ef8?w=800"
+    ],
+    "moq": 75,
+    "priceRange": "$45 - $70",
+    "features": [
+      "Soft nappa leather",
+      "Adjustable strap",
+      "Multiple compartments",
+      "Zipper closure",
+      "Lightweight design"
+    ],
+    "colors": ["Black", "Burgundy", "Olive", "Tan"]
+  },
+  {
+    "id": "p9",
+    "name": "Leather Gloves - Premium Lined",
+    "category": "accessories",
+    "description": "Luxurious lambskin gloves with warm cashmere lining. Touchscreen-compatible fingertips for modern convenience.",
+    "material": "Lambskin Leather with Cashmere Lining",
+    "images": [
+      "https://images.unsplash.com/photo-1600087626120-062700394a01?w=800",
+      "https://images.unsplash.com/photo-1580606819994-a6c36d031b8a?w=800"
+    ],
+    "moq": 100,
+    "priceRange": "$25 - $45",
+    "features": [
+      "Lambskin exterior",
+      "Cashmere lining",
+      "Touchscreen compatible",
+      "Elastic wrist",
+      "Hand-stitched seams"
+    ],
+    "colors": ["Black", "Brown", "Tan"],
+    "sizes": ["S", "M", "L", "XL"]
+  },
+  {
+    "id": "p10",
+    "name": "Vintage Leather Messenger Bag",
+    "category": "bags",
+    "description": "Rugged messenger bag with distressed finish. Features padded shoulder strap and multiple pockets.",
+    "material": "Distressed Buffalo Leather",
+    "images": [
+      "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=800",
+      "https://images.unsplash.com/photo-1590874103328-eac38a683ce7?w=800"
+    ],
+    "moq": 45,
+    "priceRange": "$75 - $110",
+    "features": [
+      "Distressed buffalo leather",
+      "Padded shoulder strap",
+      "Multiple pockets",
+      "Flap closure with buckles",
+      "Vintage brass hardware"
+    ],
+    "colors": ["Dark Brown", "Tan", "Black"],
+    "sizes": ["Medium (14x11x4)", "Large (16x12x5)"]
+  },
+  {
+    "id": "p11",
+    "name": "Executive Card Holder",
+    "category": "wallets",
+    "description": "Slim card holder with elegant design. Holds up to 6 cards and features a center pocket for bills.",
+    "material": "Premium Calfskin Leather",
+    "images": [
+      "https://images.unsplash.com/photo-1606107557195-0e29a4b5b4aa?w=800",
+      "https://images.unsplash.com/photo-1627123424574-724758594e93?w=800"
+    ],
+    "moq": 150,
+    "priceRange": "$10 - $20",
+    "features": [
+      "Slim profile",
+      "6 card slots",
+      "Center pocket",
+      "Gold foil logo option",
+      "Smooth calfskin"
+    ],
+    "colors": ["Black", "Navy", "Burgundy", "Forest Green"]
+  },
+  {
+    "id": "p12",
+    "name": "Heritage Bomber Jacket",
+    "category": "jackets",
+    "description": "Classic bomber style in premium sheepskin leather. Features ribbed collar, cuffs, and hem.",
+    "material": "Sheepskin Leather",
+    "images": [
+      "https://images.unsplash.com/photo-1551028719-00167b16eac5?w=800",
+      "https://images.unsplash.com/photo-1520975954732-35dd22299614?w=800"
+    ],
+    "moq": 35,
+    "priceRange": "$140 - $195",
+    "features": [
+      "Sheepskin leather",
+      "Ribbed knit trim",
+      "Zip front",
+      "Side pockets",
+      "Satin lining"
+    ],
+    "colors": ["Black", "Navy", "Olive", "Brown"],
+    "sizes": ["S", "M", "L", "XL", "XXL"]
+  }
+]
+

@@ -2,12 +2,21 @@ import mongoose, { Schema, Model } from "mongoose";
 
 export interface IInquiry {
   _id: string;
+  userId?: string; // Link to user if logged in
   name: string;
   email: string;
   company: string;
   phone: string;
   inquiryType: "bulk" | "sample" | "general" | "partnership" | "support";
+  inquirySource: "contact-form" | "product-page" | "customization-form";
   productInterest?: string;
+  productId?: string; // Specific product if from product page
+  customizationDetails?: {
+    type: string;
+    quantity: string;
+    budget?: string;
+    timeline?: string;
+  };
   message: string;
   sampleCartItems?: Array<{
     productName: string;
@@ -21,6 +30,10 @@ export interface IInquiry {
 
 const InquirySchema = new Schema<IInquiry>(
   {
+    userId: {
+      type: String,
+      index: true,
+    },
     name: {
       type: String,
       required: [true, "Name is required"],
@@ -31,6 +44,7 @@ const InquirySchema = new Schema<IInquiry>(
       required: [true, "Email is required"],
       lowercase: true,
       trim: true,
+      index: true,
     },
     company: {
       type: String,
@@ -46,8 +60,25 @@ const InquirySchema = new Schema<IInquiry>(
       enum: ["bulk", "sample", "general", "partnership", "support"],
       required: true,
     },
+    inquirySource: {
+      type: String,
+      enum: ["contact-form", "product-page", "customization-form"],
+      required: true,
+      default: "contact-form",
+    },
     productInterest: {
       type: String,
+    },
+    productId: {
+      type: String,
+    },
+    customizationDetails: {
+      type: {
+        type: String,
+      },
+      quantity: String,
+      budget: String,
+      timeline: String,
     },
     message: {
       type: String,

@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
@@ -164,9 +165,16 @@ export function SchedulerModal({ isOpen, onClose, defaultMeetingType = "consulta
     onClose();
   };
 
-  if (!isOpen) return null;
+  const [mounted, setMounted] = useState(false);
 
-  return (
+  useEffect(() => {
+    setMounted(true);
+    return () => setMounted(false);
+  }, []);
+
+  if (!isOpen || !mounted) return null;
+
+  const modalContent = (
     <AnimatePresence>
       <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
         {/* Backdrop */}
@@ -184,7 +192,7 @@ export function SchedulerModal({ isOpen, onClose, defaultMeetingType = "consulta
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.95, y: 20 }}
           transition={{ type: "spring", damping: 25, stiffness: 300 }}
-          className="relative w-full max-w-4xl max-h-[90vh] bg-[var(--color-bg)] rounded-2xl shadow-2xl overflow-hidden flex flex-col"
+          className="relative w-full max-w-4xl max-h-[95vh] md:max-h-[90vh] bg-[var(--color-bg)] rounded-2xl shadow-2xl overflow-hidden flex flex-col my-4"
         >
           {/* Header */}
           <div className="flex items-center justify-between p-6 border-b-2 border-[var(--color-secondary)]">
@@ -207,7 +215,7 @@ export function SchedulerModal({ isOpen, onClose, defaultMeetingType = "consulta
           </div>
 
           {/* Content */}
-          <div className="flex-1 overflow-y-auto p-6">
+          <div className="flex-1 overflow-y-auto p-4 md:p-6">
             {submitted ? (
               <motion.div
                 initial={{ opacity: 0, scale: 0.9 }}
@@ -623,5 +631,7 @@ export function SchedulerModal({ isOpen, onClose, defaultMeetingType = "consulta
       </div>
     </AnimatePresence>
   );
+
+  return createPortal(modalContent, document.body);
 }
 

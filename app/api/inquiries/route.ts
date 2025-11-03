@@ -1,7 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
+import { getServerSession } from "next-auth";
 import connectDB from "@/lib/mongodb";
 import Inquiry from "@/models/Inquiry";
 import { withAdminAuth } from "@/lib/middleware";
+import { authOptions } from "../auth/[...nextauth]/route";
 import { z } from "zod";
 
 const inquirySchema = z.object({
@@ -10,7 +12,15 @@ const inquirySchema = z.object({
   company: z.string().min(2),
   phone: z.string(),
   inquiryType: z.enum(["bulk", "sample", "general", "partnership", "support"]),
+  inquirySource: z.enum(["contact-form", "product-page", "customization-form"]),
   productInterest: z.string().optional(),
+  productId: z.string().optional(),
+  customizationDetails: z.object({
+    type: z.string(),
+    quantity: z.string(),
+    budget: z.string().optional(),
+    timeline: z.string().optional(),
+  }).optional(),
   message: z.string().min(10),
   sampleCartItems: z.array(z.object({
     productName: z.string(),
@@ -70,7 +80,26 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     const validatedData = inquirySchema.parse(body);
 
-    const inquiry = await Inquiry.create(validatedData);
+    // Check if user is logged in
+    const session = await getServerSession(authOptions);
+    
+    // Use userId if logged in, otherwise use email as identifier
+    const userId = session?.user ? (session.user as any).id : validatedData.email;
+
+    const inquiry = await Inquiry.create({
+      ...validatedData,
+      userId, // Link to user ID if logged in, or use email if guest
+    });
+
+    console.log("✅ Inquiry created:", inquiry._id);
+    console.log("📋 Inquiry source:", validatedData.inquirySource);
+    console.log("📧 Customer email:", validatedData.email);
+    if (session?.user) {
+      console.log("✅ Linked to user ID:", userId);
+      console.log("👤 User email:", session.user.email);
+    } else {
+      console.log("ℹ️ Guest inquiry - using email as userId:", userId);
+    }
 
     // TODO: Send email notification to admin
     // TODO: Send confirmation email to customer

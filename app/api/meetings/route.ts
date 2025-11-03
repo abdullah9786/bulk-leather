@@ -1,8 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
+import { getServerSession } from "next-auth";
 import connectDB from "@/lib/mongodb";
 import Meeting from "@/models/Meeting";
 import { withAdminAuth } from "@/lib/middleware";
 import { createCalendarEventWithMeet } from "@/lib/google-calendar-api";
+import { authOptions } from "../auth/[...nextauth]/route";
 import { z } from "zod";
 
 const meetingSchema = z.object({
@@ -147,12 +149,67 @@ export async function POST(req: NextRequest) {
       }
     }
 
+    // Check if user is logged in
+    const session = await getServerSession(authOptions);
+    
+    // Use userId if logged in, otherwise use email as identifier
+    const userId = session?.user ? (session.user as any).id : validatedData.email;
+
     const meeting = await Meeting.create({
       ...validatedData,
       date: new Date(validatedData.date),
+      userId, // Link to user ID if logged in, or use email if guest
       googleMeetLink,
       googleCalendarEventId,
     });
+
+    console.log("✅ Meeting created:", meeting._id);
+    if (session?.user) {
+      console.log("✅ Linked to user ID:", userId);
+    } else {
+      console.log("ℹ️ Guest meeting - using email as userId:", userId);
+    }
+
+    // Send confirmation emails for ALL meeting types (not just video)
+    try {
+      const { sendMeetingConfirmationEmail, sendAdminMeetingNotification } = await import("@/lib/email-service");
+      
+      // Send to customer
+      const customerEmail = await sendMeetingConfirmationEmail({
+        to: validatedData.email,
+        customerName: validatedData.name,
+        meetingType: validatedData.meetingType,
+        company: validatedData.company,
+        date: validatedData.date,
+        timeSlot: validatedData.timeSlot,
+        googleMeetLink, // Will be undefined for non-video meetings
+        message: validatedData.message,
+      });
+
+      if (customerEmail.success) {
+        console.log("✅ Confirmation email sent to customer");
+      } else {
+        console.log("ℹ️ Email not sent (SMTP not configured)");
+      }
+
+      // Send to admin
+      const adminEmail = await sendAdminMeetingNotification({
+        to: validatedData.email,
+        customerName: validatedData.name,
+        meetingType: validatedData.meetingType,
+        company: validatedData.company,
+        date: validatedData.date,
+        timeSlot: validatedData.timeSlot,
+        googleMeetLink,
+        message: validatedData.message,
+      });
+
+      if (adminEmail.success) {
+        console.log("✅ Admin notification sent");
+      }
+    } catch (emailError) {
+      console.log("ℹ️ Email sending skipped (not configured)");
+    }
 
     return NextResponse.json({
       success: true,

@@ -2,12 +2,15 @@
 
 import React, { useState } from "react";
 import Image from "next/image";
+import { useSession, signIn } from "next-auth/react";
 import { motion } from "framer-motion";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Textarea } from "@/components/ui/Textarea";
 import { Select } from "@/components/ui/Select";
+import { Toast } from "@/components/ui/Toast";
+import { LoginPromptModal } from "@/components/ui/LoginPromptModal";
 import { SchedulerButton } from "@/components/scheduler/SchedulerButton";
 import { 
   Mail, 
@@ -24,6 +27,7 @@ import { useCart } from "@/contexts/CartContext";
 
 export default function ContactPage() {
   const { cartItems } = useCart();
+  const { data: session } = useSession();
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -34,6 +38,8 @@ export default function ContactPage() {
     message: "",
   });
   const [formSubmitted, setFormSubmitted] = useState(false);
+  const [showLoginPrompt, setShowLoginPrompt] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
@@ -41,15 +47,16 @@ export default function ContactPage() {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
+  const submitForm = async () => {
+    setSubmitting(true);
+
     try {
       const response = await fetch("/api/inquiries", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           ...formData,
+          inquirySource: "contact-form",
           sampleCartItems: cartItems.map(item => ({
             productName: item.product.name,
             quantity: item.quantity
@@ -61,7 +68,6 @@ export default function ContactPage() {
 
       if (data.success) {
         setFormSubmitted(true);
-        setTimeout(() => setFormSubmitted(false), 5000);
         setFormData({
           name: "",
           email: "",
@@ -75,7 +81,22 @@ export default function ContactPage() {
     } catch (error) {
       console.error("Error submitting inquiry:", error);
       alert("Failed to submit inquiry. Please try again.");
+    } finally {
+      setSubmitting(false);
     }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    // Show login prompt for logged-out users
+    if (!session) {
+      setShowLoginPrompt(true);
+      return;
+    }
+
+    // If logged in, submit directly
+    await submitForm();
   };
 
   const contactMethods = [
@@ -171,20 +192,6 @@ export default function ContactPage() {
               <h2 className="text-3xl font-serif text-[var(--color-text)] mb-6">
                 Send Us a Message
               </h2>
-
-              {formSubmitted && (
-                <motion.div
-                  initial={{ opacity: 0, y: -10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="bg-green-100 border-2 border-green-500 text-green-700 px-6 py-4 rounded-lg mb-6 flex items-start gap-3"
-                >
-                  <CheckCircle className="w-6 h-6 flex-shrink-0 mt-0.5" />
-                  <div>
-                    <p className="font-semibold">Message sent successfully!</p>
-                    <p className="text-sm">We'll get back to you within 24 hours.</p>
-                  </div>
-                </motion.div>
-              )}
 
               {/* Show Sample Cart Items */}
               {cartItems.length > 0 && (
@@ -306,13 +313,43 @@ export default function ContactPage() {
                   placeholder="Tell us about your requirements, expected quantities, timeline, or any questions you have..."
                 />
 
-                <Button type="submit" size="lg" className="w-full md:w-auto group">
-                  Send Message
-                  <Send className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                <Button 
+                  type="submit" 
+                  size="lg" 
+                  className="w-full md:w-auto group"
+                  disabled={submitting}
+                >
+                  {submitting ? (
+                    <>
+                      <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
+                      Sending...
+                    </>
+                  ) : (
+                    <>
+                      Send Message
+                      <Send className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                    </>
+                  )}
                 </Button>
               </form>
             </Card>
           </motion.div>
+
+          {/* Success Toast */}
+          <Toast
+            isOpen={formSubmitted}
+            onClose={() => setFormSubmitted(false)}
+            type="success"
+            title="Message Sent Successfully!"
+            message="We'll get back to you within 24 hours."
+          />
+
+          {/* Login Prompt Modal */}
+          <LoginPromptModal
+            isOpen={showLoginPrompt}
+            onClose={() => setShowLoginPrompt(false)}
+            onContinueAsGuest={submitForm}
+          />
 
           {/* Contact Information & Map */}
           <motion.div

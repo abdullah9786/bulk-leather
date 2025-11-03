@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Textarea } from "@/components/ui/Textarea";
 import { Select } from "@/components/ui/Select";
+import { Toast } from "@/components/ui/Toast";
 import { SchedulerButton } from "@/components/scheduler/SchedulerButton";
 import { 
   Palette,
@@ -62,7 +63,14 @@ export default function CustomizationPage() {
           company: formData.company,
           phone: formData.phone,
           inquiryType: "general",
+          inquirySource: "customization-form",
           productInterest: formData.customizationType,
+          customizationDetails: {
+            type: formData.customizationType,
+            quantity: formData.quantity,
+            budget: formData.budget,
+            timeline: formData.timeline,
+          },
           message: `Customization Request:\n\nType: ${formData.customizationType}\nQuantity: ${formData.quantity}\nBudget: ${formData.budget || 'Not specified'}\nTimeline: ${formData.timeline || 'Not specified'}\n\nDetails:\n${formData.message}`,
           sampleCartItems: cartItems.map(item => ({
             productName: item.product.name,
@@ -75,7 +83,19 @@ export default function CustomizationPage() {
 
       if (data.success) {
         setFormSubmitted(true);
-        window.scrollTo({ top: 0, behavior: "smooth" });
+        
+        // Clear form
+        setFormData({
+          name: "",
+          email: "",
+          company: "",
+          phone: "",
+          customizationType: "design",
+          quantity: "",
+          budget: "",
+          timeline: "",
+          message: "",
+        });
       }
     } catch (error) {
       console.error("Error submitting customization request:", error);
@@ -221,48 +241,6 @@ export default function CustomizationPage() {
     }
   ];
 
-  if (formSubmitted) {
-    return (
-      <div className="min-h-[70vh] flex items-center justify-center py-12">
-        <div className="container mx-auto px-4">
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="max-w-2xl mx-auto text-center"
-          >
-            <Card>
-              <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-green-100 mb-6">
-                <CheckCircle className="w-12 h-12 text-green-600" />
-              </div>
-              <h1 className="text-3xl md:text-4xl font-serif text-[var(--color-text)] mb-4">
-                Customization Request Received!
-              </h1>
-              <p className="text-lg text-[var(--color-body)] mb-6">
-                Thank you for your interest in our custom manufacturing services. Our design 
-                team will review your requirements and contact you within 24 hours to schedule 
-                a consultation.
-              </p>
-              <div className="bg-[var(--color-secondary)] rounded-lg p-4 mb-6">
-                <p className="text-sm text-[var(--color-body)]">
-                  Confirmation sent to <strong>{formData.email}</strong>
-                </p>
-              </div>
-              <div className="flex flex-wrap justify-center gap-4">
-                <Button onClick={() => window.location.reload()}>
-                  Submit Another Request
-                </Button>
-                <Link href="/products">
-                  <Button variant="outline">
-                    Browse Products
-                  </Button>
-                </Link>
-              </div>
-            </Card>
-          </motion.div>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="py-12">
@@ -778,6 +756,15 @@ export default function CustomizationPage() {
             ))}
           </div>
         </section>
+
+        {/* Success Toast */}
+        <Toast
+          isOpen={formSubmitted}
+          onClose={() => setFormSubmitted(false)}
+          type="success"
+          title="Customization Request Received!"
+          message="Our team will contact you within 24 hours."
+        />
       </div>
     </div>
   );

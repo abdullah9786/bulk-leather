@@ -117,7 +117,7 @@ export function ProductModal({ isOpen, onClose, onSuccess, product, mode }: Prod
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 overflow-y-auto">
-      <div className="bg-white rounded-xl max-w-3xl w-full my-8 p-6">
+      <div className="bg-white rounded-xl max-w-3xl w-full max-h-[95vh] overflow-y-auto my-4 md:my-8 p-4 md:p-6">
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-2xl font-bold text-gray-900">
             {mode === "add" ? "Add New Product" : "Edit Product"}

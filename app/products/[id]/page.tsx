@@ -9,6 +9,7 @@ import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Textarea } from "@/components/ui/Textarea";
+import { Toast } from "@/components/ui/Toast";
 import { SchedulerButton } from "@/components/scheduler/SchedulerButton";
 import { 
   ArrowLeft, 
@@ -109,7 +110,9 @@ export default function ProductDetailPage() {
           company: formData.company,
           phone: formData.phone,
           inquiryType: "bulk",
+          inquirySource: "product-page",
           productInterest: product?.name || "",
+          productId: productId,
           message: `Bulk Order Quote Request:\n\nProduct: ${product?.name}\nDesired Quantity: ${formData.quantity} units\n\nAdditional Requirements:\n${formData.message || 'None'}`,
         }),
       });
@@ -118,7 +121,14 @@ export default function ProductDetailPage() {
 
       if (data.success) {
         setFormSubmitted(true);
-        setTimeout(() => setFormSubmitted(false), 3000);
+        
+        // Scroll to quote form section to show success message
+        const quoteForm = document.getElementById('quote-form');
+        if (quoteForm) {
+          quoteForm.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+        
+        setTimeout(() => setFormSubmitted(false), 5000);
         setFormData({
           name: "",
           email: "",
@@ -407,17 +417,6 @@ export default function ProductDetailPage() {
               with a detailed quote and information.
             </p>
 
-            {formSubmitted && (
-              <motion.div
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="bg-green-100 border-2 border-green-500 text-green-700 px-6 py-4 rounded-lg mb-6"
-              >
-                <p className="font-semibold">Quote request submitted successfully!</p>
-                <p className="text-sm">We'll contact you shortly.</p>
-              </motion.div>
-            )}
-
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <Input
@@ -485,6 +484,15 @@ export default function ProductDetailPage() {
             </form>
           </Card>
         </motion.div>
+
+        {/* Success Toast */}
+        <Toast
+          isOpen={formSubmitted}
+          onClose={() => setFormSubmitted(false)}
+          type="success"
+          title="Quote Request Sent!"
+          message="We'll contact you shortly with pricing details."
+        />
       </div>
     </div>
   );

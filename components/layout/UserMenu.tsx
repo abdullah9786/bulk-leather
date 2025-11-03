@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { useSession, signIn, signOut } from "next-auth/react";
 import { motion, AnimatePresence } from "framer-motion";
-import { User, LogOut, ShoppingBag, ChevronDown } from "lucide-react";
+import { User, LogOut, ShoppingBag, ChevronDown, Mail, Calendar } from "lucide-react";
 
 export function UserMenu() {
   const { data: session, status } = useSession();
@@ -97,6 +97,22 @@ export function UserMenu() {
               >
                 <ShoppingBag className="w-4 h-4" />
                 My Orders
+              </a>
+              <a
+                href="/my-enquiries"
+                className="flex items-center gap-3 px-4 py-2 hover:bg-[var(--color-secondary)] rounded-lg transition-colors text-sm text-[var(--color-body)]"
+                onClick={() => setMenuOpen(false)}
+              >
+                <Mail className="w-4 h-4" />
+                My Enquiries
+              </a>
+              <a
+                href="/my-meetings"
+                className="flex items-center gap-3 px-4 py-2 hover:bg-[var(--color-secondary)] rounded-lg transition-colors text-sm text-[var(--color-body)]"
+                onClick={() => setMenuOpen(false)}
+              >
+                <Calendar className="w-4 h-4" />
+                My Meetings
               </a>
             </div>
 

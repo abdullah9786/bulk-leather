@@ -2,6 +2,7 @@ import mongoose, { Schema, Model } from "mongoose";
 
 export interface IMeeting {
   _id: string;
+  userId?: string; // Link to user if logged in, or email if guest
   name: string;
   email: string;
   company: string;
@@ -25,6 +26,10 @@ export interface IMeeting {
 
 const MeetingSchema = new Schema<IMeeting>(
   {
+    userId: {
+      type: String,
+      index: true,
+    },
     name: {
       type: String,
       required: [true, "Name is required"],

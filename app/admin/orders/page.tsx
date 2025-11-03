@@ -21,8 +21,13 @@ interface Order {
   paymentStatus: string;
   orderStatus: string;
   shippingAddress: {
+    fullName: string;
+    phone: string;
+    address: string;
     city: string;
+    state: string;
     country: string;
+    postalCode: string;
   };
   items: Array<{
     productName: string;
@@ -242,8 +247,8 @@ export default function AdminOrdersPage() {
 
       {/* Order Detail Modal */}
       {selectedOrder && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50">
-          <div className="bg-white rounded-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto p-6">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 overflow-y-auto">
+          <div className="bg-white rounded-xl max-w-4xl w-full max-h-[95vh] overflow-y-auto my-4 md:my-8 p-4 md:p-6">
             <div className="flex items-start justify-between mb-6">
               <h2 className="text-2xl font-bold text-gray-900">Order Details</h2>
               <button onClick={() => setSelectedOrder(null)} className="p-2 hover:bg-gray-100 rounded-lg">

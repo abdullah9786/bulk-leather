@@ -58,6 +58,11 @@ export const Footer = () => {
                 </Link>
               </li>
               <li>
+                <Link href="/schedule-meeting" className="text-[var(--color-body)] hover:text-[var(--color-accent)] transition-colors text-sm">
+                  Schedule Meeting
+                </Link>
+              </li>
+              <li>
                 <Link href="/about" className="text-[var(--color-body)] hover:text-[var(--color-accent)] transition-colors text-sm">
                   About Us
                 </Link>

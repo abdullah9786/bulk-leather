@@ -15,11 +15,21 @@ import { Button } from "@/components/ui/Button";
 
 interface Inquiry {
   _id: string;
+  userId?: string;
   name: string;
   email: string;
   company: string;
   phone: string;
   inquiryType: string;
+  inquirySource: string;
+  productInterest?: string;
+  productId?: string;
+  customizationDetails?: {
+    type: string;
+    quantity: string;
+    budget?: string;
+    timeline?: string;
+  };
   message: string;
   sampleCartItems?: Array<{ productName: string; quantity: number }>;
   status: string;
@@ -31,6 +41,7 @@ export default function AdminInquiriesPage() {
   const [filteredInquiries, setFilteredInquiries] = useState<Inquiry[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
+  const [sourceFilter, setSourceFilter] = useState("all");
   const [loading, setLoading] = useState(true);
   const [selectedInquiry, setSelectedInquiry] = useState<Inquiry | null>(null);
 
@@ -162,7 +173,7 @@ export default function AdminInquiriesPage() {
 
       {/* Filters */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
             <input
@@ -173,6 +184,16 @@ export default function AdminInquiriesPage() {
               className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none"
             />
           </div>
+          <select
+            value={sourceFilter}
+            onChange={(e) => setSourceFilter(e.target.value)}
+            className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none"
+          >
+            <option value="all">All Sources</option>
+            <option value="contact-form">Contact Form</option>
+            <option value="product-page">Product Page</option>
+            <option value="customization-form">Customization</option>
+          </select>
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
@@ -294,8 +315,8 @@ export default function AdminInquiriesPage() {
 
       {/* Detail Modal */}
       {selectedInquiry && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50">
-          <div className="bg-white rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto p-6">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 overflow-y-auto">
+          <div className="bg-white rounded-xl max-w-2xl w-full max-h-[95vh] overflow-y-auto my-4 md:my-8 p-4 md:p-6">
             <div className="flex items-start justify-between mb-6">
               <h2 className="text-2xl font-bold text-gray-900">Inquiry Details</h2>
               <button onClick={() => setSelectedInquiry(null)} className="p-2 hover:bg-gray-100 rounded-lg">
@@ -303,6 +324,16 @@ export default function AdminInquiriesPage() {
               </button>
             </div>
             <div className="space-y-4">
+              {/* Inquiry Source Badge */}
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                <p className="text-xs font-semibold text-blue-800 uppercase">Inquiry Source</p>
+                <p className="text-sm text-blue-900 capitalize mt-1">
+                  {selectedInquiry.inquirySource?.replace("-", " ")}
+                  {selectedInquiry.userId && " (Logged In User)"}
+                </p>
+              </div>
+
+              {/* Contact Info */}
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <p className="text-sm text-gray-500 mb-1">Name</p>
@@ -325,10 +356,54 @@ export default function AdminInquiriesPage() {
                   </a>
                 </div>
               </div>
+
+              {/* Product-Specific Details (Product Page Inquiries) */}
+              {selectedInquiry.inquirySource === "product-page" && selectedInquiry.productInterest && (
+                <div className="bg-purple-50 border border-purple-200 rounded-lg p-4">
+                  <p className="text-sm font-semibold text-purple-900 mb-2">Product Quote Request</p>
+                  <p className="text-sm text-purple-800">
+                    <strong>Product:</strong> {selectedInquiry.productInterest}
+                  </p>
+                  {selectedInquiry.productId && (
+                    <p className="text-xs text-purple-600 mt-1">
+                      Product ID: {selectedInquiry.productId}
+                    </p>
+                  )}
+                </div>
+              )}
+
+              {/* Customization Details */}
+              {selectedInquiry.inquirySource === "customization-form" && selectedInquiry.customizationDetails && (
+                <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+                  <p className="text-sm font-semibold text-green-900 mb-3">Customization Requirements</p>
+                  <div className="space-y-2">
+                    <p className="text-sm text-green-800">
+                      <strong>Type:</strong> {selectedInquiry.customizationDetails.type}
+                    </p>
+                    <p className="text-sm text-green-800">
+                      <strong>Quantity:</strong> {selectedInquiry.customizationDetails.quantity}
+                    </p>
+                    {selectedInquiry.customizationDetails.budget && (
+                      <p className="text-sm text-green-800">
+                        <strong>Budget:</strong> {selectedInquiry.customizationDetails.budget}
+                      </p>
+                    )}
+                    {selectedInquiry.customizationDetails.timeline && (
+                      <p className="text-sm text-green-800">
+                        <strong>Timeline:</strong> {selectedInquiry.customizationDetails.timeline}
+                      </p>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* Message */}
               <div>
                 <p className="text-sm text-gray-500 mb-1">Message</p>
-                <p className="text-gray-700 bg-gray-50 p-4 rounded-lg">{selectedInquiry.message}</p>
+                <p className="text-gray-700 bg-gray-50 p-4 rounded-lg whitespace-pre-wrap">{selectedInquiry.message}</p>
               </div>
+
+              {/* Sample Cart Items */}
               {selectedInquiry.sampleCartItems && selectedInquiry.sampleCartItems.length > 0 && (
                 <div>
                   <p className="text-sm text-gray-500 mb-2">Sample Cart Items</p>
@@ -342,6 +417,7 @@ export default function AdminInquiriesPage() {
                   </div>
                 </div>
               )}
+
               <div className="flex gap-3 pt-4">
                 <Button 
                   className="flex-1"

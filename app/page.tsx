@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { motion } from "framer-motion";
@@ -27,11 +27,59 @@ import {
   Stamp,
   Settings
 } from "lucide-react";
-import categories from "@/data/categories.json";
-import testimonials from "@/data/testimonials.json";
-import products from "@/data/products.json";
+import { Product } from "@/types";
+
+interface Category {
+  _id?: string;
+  id: string;
+  name: string;
+  slug: string;
+  description: string;
+  image: string;
+}
+
+interface Testimonial {
+  _id?: string;
+  id: string;
+  name: string;
+  company: string;
+  role: string;
+  content: string;
+}
 
 export default function HomePage() {
+  const [products, setProducts] = useState<Product[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  const fetchData = async () => {
+    try {
+      const [productsRes, categoriesRes, testimonialsRes] = await Promise.all([
+        fetch("/api/products?isActive=true"),
+        fetch("/api/categories?isActive=true"),
+        fetch("/api/testimonials?isActive=true"),
+      ]);
+
+      const [productsData, categoriesData, testimonialsData] = await Promise.all([
+        productsRes.json(),
+        categoriesRes.json(),
+        testimonialsRes.json(),
+      ]);
+
+      if (productsData.success) setProducts(productsData.data);
+      if (categoriesData.success) setCategories(categoriesData.data);
+      if (testimonialsData.success) setTestimonials(testimonialsData.data);
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
   return (
     <div>
       {/* Hero Section */}
@@ -145,104 +193,111 @@ export default function HomePage() {
           </motion.div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
-            {products.slice(0, 4).map((product, index) => (
-              <motion.div
-                key={product.id}
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: index * 0.1, duration: 0.6 }}
-              >
-                <Card className="group cursor-pointer overflow-hidden p-0 h-full">
-                  <div className="flex flex-col md:flex-row h-full">
-                    {/* Product Image */}
-                    <div className="relative w-full md:w-2/5 h-64 md:h-auto flex-shrink-0">
-                      <Image
-                        src={product.images[0]}
-                        alt={product.name}
-                        fill
-                        className="object-cover group-hover:scale-110 transition-transform duration-500"
-                      />
-                      <div className="absolute top-4 left-4 bg-[var(--color-accent)] text-[var(--color-text)] px-3 py-1 rounded-full text-xs font-bold">
-                        WHOLESALE
+            {loading ? (
+              <div className="col-span-2 flex justify-center py-12">
+                <div className="w-12 h-12 border-4 border-[var(--color-accent)] border-t-transparent rounded-full animate-spin" />
+              </div>
+            ) : products.slice(0, 4).map((product, index) => {
+              const productId = (product as any)._id || product.id;
+              return (
+                <motion.div
+                  key={productId}
+                  initial={{ opacity: 0, y: 30 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: index * 0.1, duration: 0.6 }}
+                >
+                  <Card className="group cursor-pointer overflow-hidden p-0 h-full">
+                    <div className="flex flex-col md:flex-row h-full">
+                      {/* Product Image */}
+                      <div className="relative w-full md:w-2/5 h-64 md:h-auto flex-shrink-0">
+                        <Image
+                          src={product.images[0]}
+                          alt={product.name}
+                          fill
+                          className="object-cover group-hover:scale-110 transition-transform duration-500"
+                        />
+                        <div className="absolute top-4 left-4 bg-[var(--color-accent)] text-[var(--color-text)] px-3 py-1 rounded-full text-xs font-bold">
+                          WHOLESALE
+                        </div>
+                      </div>
+
+                      {/* Product Details */}
+                      <div className="flex-1 p-6 flex flex-col">
+                        <div className="mb-3">
+                          <span className="text-xs font-semibold text-[var(--color-accent)] uppercase tracking-wider">
+                            {product.category}
+                          </span>
+                          <h3 className="text-2xl font-serif text-[var(--color-text)] mt-1 mb-2 group-hover:text-[var(--color-accent)] transition-colors">
+                            {product.name}
+                          </h3>
+                          <p className="text-[var(--color-body)] text-sm leading-relaxed line-clamp-2">
+                            {product.description}
+                          </p>
+                        </div>
+
+                        {/* Wholesale Details */}
+                        <div className="space-y-3 mb-4 flex-1">
+                          <div className="flex items-center gap-2">
+                            <Package className="w-4 h-4 text-[var(--color-accent)]" />
+                            <span className="text-sm text-[var(--color-body)]">
+                              <strong className="text-[var(--color-text)]">MOQ:</strong> {product.moq} units
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <TrendingDown className="w-4 h-4 text-[var(--color-accent)]" />
+                            <span className="text-sm text-[var(--color-body)]">
+                              <strong className="text-[var(--color-text)]">Wholesale Price:</strong> {product.priceRange}
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <CheckCircle className="w-4 h-4 text-[var(--color-accent)]" />
+                            <span className="text-sm text-[var(--color-body)]">
+                              <strong className="text-[var(--color-text)]">Material:</strong> {product.material}
+                            </span>
+                          </div>
+                          <div className="flex items-start gap-2">
+                            <Star className="w-4 h-4 text-[var(--color-accent)] mt-0.5" />
+                            <span className="text-sm text-[var(--color-body)]">
+                              <strong className="text-[var(--color-text)]">Colors:</strong> {product.colors.join(", ")}
+                            </span>
+                          </div>
+                        </div>
+
+                        {/* Wholesale Benefits */}
+                        <div className="bg-[var(--color-secondary)] rounded-lg p-4 mb-4">
+                          <p className="text-xs font-semibold text-[var(--color-accent)] mb-2 uppercase">
+                            Wholesale Benefits
+                          </p>
+                          <ul className="space-y-1 text-xs text-[var(--color-body)]">
+                            <li>✓ Volume discounts on orders over 100 units</li>
+                            <li>✓ Free shipping on bulk orders (200+ units)</li>
+                            <li>✓ Custom branding and packaging available</li>
+                            <li>✓ Dedicated account manager support</li>
+                          </ul>
+                        </div>
+
+                        {/* CTA Buttons */}
+                        <div className="grid grid-cols-2 gap-3">
+                          <Link href={`/products/${productId}`}>
+                            <Button variant="primary" size="sm" className="w-full group">
+                              Get Quote
+                              <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                            </Button>
+                          </Link>
+                          <Link href={`/products/${productId}`}>
+                            <Button variant="outline" size="sm" className="w-full group">
+                              View Details
+                              <Package className="ml-2 w-4 h-4" />
+                            </Button>
+                          </Link>
+                        </div>
                       </div>
                     </div>
-
-                    {/* Product Details */}
-                    <div className="flex-1 p-6 flex flex-col">
-                      <div className="mb-3">
-                        <span className="text-xs font-semibold text-[var(--color-accent)] uppercase tracking-wider">
-                          {product.category}
-                        </span>
-                        <h3 className="text-2xl font-serif text-[var(--color-text)] mt-1 mb-2 group-hover:text-[var(--color-accent)] transition-colors">
-                          {product.name}
-                        </h3>
-                        <p className="text-[var(--color-body)] text-sm leading-relaxed line-clamp-2">
-                          {product.description}
-                        </p>
-                      </div>
-
-                      {/* Wholesale Details */}
-                      <div className="space-y-3 mb-4 flex-1">
-                        <div className="flex items-center gap-2">
-                          <Package className="w-4 h-4 text-[var(--color-accent)]" />
-                          <span className="text-sm text-[var(--color-body)]">
-                            <strong className="text-[var(--color-text)]">MOQ:</strong> {product.moq} units
-                          </span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <TrendingDown className="w-4 h-4 text-[var(--color-accent)]" />
-                          <span className="text-sm text-[var(--color-body)]">
-                            <strong className="text-[var(--color-text)]">Wholesale Price:</strong> {product.priceRange}
-                          </span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <CheckCircle className="w-4 h-4 text-[var(--color-accent)]" />
-                          <span className="text-sm text-[var(--color-body)]">
-                            <strong className="text-[var(--color-text)]">Material:</strong> {product.material}
-                          </span>
-                        </div>
-                        <div className="flex items-start gap-2">
-                          <Star className="w-4 h-4 text-[var(--color-accent)] mt-0.5" />
-                          <span className="text-sm text-[var(--color-body)]">
-                            <strong className="text-[var(--color-text)]">Colors:</strong> {product.colors.join(", ")}
-                          </span>
-                        </div>
-                      </div>
-
-                      {/* Wholesale Benefits */}
-                      <div className="bg-[var(--color-secondary)] rounded-lg p-4 mb-4">
-                        <p className="text-xs font-semibold text-[var(--color-accent)] mb-2 uppercase">
-                          Wholesale Benefits
-                        </p>
-                        <ul className="space-y-1 text-xs text-[var(--color-body)]">
-                          <li>✓ Volume discounts on orders over 100 units</li>
-                          <li>✓ Free shipping on bulk orders (200+ units)</li>
-                          <li>✓ Custom branding and packaging available</li>
-                          <li>✓ Dedicated account manager support</li>
-                        </ul>
-                      </div>
-
-                      {/* CTA Buttons */}
-                      <div className="grid grid-cols-2 gap-3">
-                        <Link href={`/products/${product.id}`}>
-                          <Button variant="primary" size="sm" className="w-full group">
-                            Get Quote
-                            <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                          </Button>
-                        </Link>
-                        <Link href={`/products/${product.id}`}>
-                          <Button variant="outline" size="sm" className="w-full group">
-                            View Details
-                            <Package className="ml-2 w-4 h-4" />
-                          </Button>
-                        </Link>
-                      </div>
-                    </div>
-                  </div>
-                </Card>
-              </motion.div>
-            ))}
+                  </Card>
+                </motion.div>
+              );
+            })}
           </div>
 
           {/* Wholesale Advantages */}
@@ -314,8 +369,12 @@ export default function HomePage() {
           </motion.div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {categories.map((category, index) => (
-              <Link key={category.id} href={`/products?category=${category.slug}`}>
+            {loading ? (
+              <div className="col-span-3 flex justify-center py-12">
+                <div className="w-12 h-12 border-4 border-[var(--color-accent)] border-t-transparent rounded-full animate-spin" />
+              </div>
+            ) : categories.map((category, index) => (
+              <Link key={category._id || category.id} href={`/products?category=${category.slug}`}>
                 <Card className="group cursor-pointer overflow-hidden p-0">
                   <div className="relative h-64 overflow-hidden">
                     <Image
@@ -984,8 +1043,12 @@ export default function HomePage() {
           </motion.div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            {testimonials.map((testimonial, index) => (
-              <Card key={testimonial.id}>
+            {loading ? (
+              <div className="col-span-2 flex justify-center py-12">
+                <div className="w-12 h-12 border-4 border-[var(--color-accent)] border-t-transparent rounded-full animate-spin" />
+              </div>
+            ) : testimonials.map((testimonial, index) => (
+              <Card key={testimonial._id || testimonial.id}>
                 <div className="mb-4">
                   <div className="flex items-center space-x-1 mb-4">
                     {[...Array(5)].map((_, i) => (

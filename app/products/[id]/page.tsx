@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
@@ -21,8 +21,8 @@ import {
   ShoppingCart,
   Sparkles
 } from "lucide-react";
-import products from "@/data/products.json";
 import { useCart } from "@/contexts/CartContext";
+import { Product } from "@/types";
 
 export default function ProductDetailPage() {
   const params = useParams();
@@ -30,8 +30,8 @@ export default function ProductDetailPage() {
   const productId = params.id as string;
   const { addToCart } = useCart();
 
-  const product = products.find((p) => p.id === productId);
-
+  const [product, setProduct] = useState<Product | null>(null);
+  const [loading, setLoading] = useState(true);
   const [selectedImage, setSelectedImage] = useState(0);
   const [quantity, setQuantity] = useState(1);
   const [formData, setFormData] = useState({
@@ -44,6 +44,36 @@ export default function ProductDetailPage() {
   });
   const [formSubmitted, setFormSubmitted] = useState(false);
   const [addedToCart, setAddedToCart] = useState(false);
+
+  useEffect(() => {
+    fetchProduct();
+  }, [productId]);
+
+  const fetchProduct = async () => {
+    try {
+      const response = await fetch(`/api/products/${productId}`);
+      const data = await response.json();
+      
+      if (data.success) {
+        setProduct(data.data);
+      } else {
+        setProduct(null);
+      }
+    } catch (error) {
+      console.error("Error fetching product:", error);
+      setProduct(null);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="w-12 h-12 border-4 border-[var(--color-accent)] border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
 
   if (!product) {
     return (
@@ -66,19 +96,42 @@ export default function ProductDetailPage() {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Quote request:", { ...formData, product: product.name });
-    setFormSubmitted(true);
-    setTimeout(() => setFormSubmitted(false), 3000);
-    setFormData({
-      name: "",
-      email: "",
-      company: "",
-      phone: "",
-      quantity: "",
-      message: "",
-    });
+    
+    try {
+      const response = await fetch("/api/inquiries", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: formData.name,
+          email: formData.email,
+          company: formData.company,
+          phone: formData.phone,
+          inquiryType: "bulk",
+          productInterest: product?.name || "",
+          message: `Bulk Order Quote Request:\n\nProduct: ${product?.name}\nDesired Quantity: ${formData.quantity} units\n\nAdditional Requirements:\n${formData.message || 'None'}`,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        setFormSubmitted(true);
+        setTimeout(() => setFormSubmitted(false), 3000);
+        setFormData({
+          name: "",
+          email: "",
+          company: "",
+          phone: "",
+          quantity: "",
+          message: "",
+        });
+      }
+    } catch (error) {
+      console.error("Error submitting quote request:", error);
+      alert("Failed to submit quote request. Please try again.");
+    }
   };
 
   const handleAddToCart = () => {

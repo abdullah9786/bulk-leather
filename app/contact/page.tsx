@@ -41,26 +41,41 @@ export default function ContactPage() {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Inquiry submitted:", {
-      ...formData,
-      sampleCartItems: cartItems.map(item => ({
-        product: item.product.name,
-        quantity: item.quantity
-      }))
-    });
-    setFormSubmitted(true);
-    setTimeout(() => setFormSubmitted(false), 5000);
-    setFormData({
-      name: "",
-      email: "",
-      company: "",
-      phone: "",
-      inquiryType: "bulk",
-      productInterest: "",
-      message: "",
-    });
+    
+    try {
+      const response = await fetch("/api/inquiries", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ...formData,
+          sampleCartItems: cartItems.map(item => ({
+            productName: item.product.name,
+            quantity: item.quantity
+          }))
+        }),
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        setFormSubmitted(true);
+        setTimeout(() => setFormSubmitted(false), 5000);
+        setFormData({
+          name: "",
+          email: "",
+          company: "",
+          phone: "",
+          inquiryType: "bulk",
+          productInterest: "",
+          message: "",
+        });
+      }
+    } catch (error) {
+      console.error("Error submitting inquiry:", error);
+      alert("Failed to submit inquiry. Please try again.");
+    }
   };
 
   const contactMethods = [

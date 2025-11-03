@@ -1,0 +1,51 @@
+# ========================================
+# BulkLeather Environment Variables
+# ========================================
+# Copy this to .env.local and fill in your values
+
+# MongoDB Atlas Connection String (Required)
+# Get this from MongoDB Atlas → Database → Connect → Connect your application
+MONGODB_URI=mongodb+srv://bulkleather:YOUR_PASSWORD@cluster0.xxxxx.mongodb.net/bulkleather?retryWrites=true&w=majority
+
+# Steps to get MongoDB Atlas connection string:
+# 1. Create account at https://www.mongodb.com/cloud/atlas
+# 2. Create free cluster (M0)
+# 3. Create database user
+# 4. Whitelist IP (0.0.0.0/0 for all IPs)
+# 5. Get connection string and replace YOUR_PASSWORD with your password
+
+# JWT Secret (Required - minimum 32 characters)
+JWT_SECRET=your-super-secret-jwt-key-change-this-to-random-string-min-32-chars
+
+# NextAuth Secret (Required - for Google OAuth)
+NEXTAUTH_SECRET=another-random-32-character-string-for-nextauth
+
+# Google OAuth (Required for user authentication & checkout)
+# Get from: https://console.cloud.google.com/
+GOOGLE_CLIENT_ID=your-google-client-id.apps.googleusercontent.com
+GOOGLE_CLIENT_SECRET=your-google-client-secret
+
+# Application URLs
+NEXT_PUBLIC_APP_URL=http://localhost:3000
+NEXTAUTH_URL=http://localhost:3000
+NEXT_PUBLIC_API_URL=http://localhost:3000/api
+
+# Node Environment
+NODE_ENV=development
+
+# Optional: Email Configuration (for notifications)
+# SMTP_HOST=smtp.gmail.com
+# SMTP_PORT=587
+# SMTP_USER=your-email@gmail.com
+# SMTP_PASS=your-app-specific-password
+# SMTP_FROM=BulkLeather <noreply@bulkleather.com>
+
+# Optional: WhatsApp Business
+# WHATSAPP_PHONE_NUMBER=+1234567890
+
+# Optional: AWS S3 (for file uploads)
+# AWS_ACCESS_KEY_ID=your-access-key
+# AWS_SECRET_ACCESS_KEY=your-secret-key
+# AWS_REGION=us-east-1
+# AWS_BUCKET_NAME=bulkleather-products
+

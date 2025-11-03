@@ -49,14 +49,38 @@ export default function CustomizationPage() {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Customization inquiry:", {
-      ...formData,
-      referenceProducts: cartItems.map(item => item.product.name),
-    });
-    setFormSubmitted(true);
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    
+    try {
+      const response = await fetch("/api/inquiries", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: formData.name,
+          email: formData.email,
+          company: formData.company,
+          phone: formData.phone,
+          inquiryType: "general",
+          productInterest: formData.customizationType,
+          message: `Customization Request:\n\nType: ${formData.customizationType}\nQuantity: ${formData.quantity}\nBudget: ${formData.budget || 'Not specified'}\nTimeline: ${formData.timeline || 'Not specified'}\n\nDetails:\n${formData.message}`,
+          sampleCartItems: cartItems.map(item => ({
+            productName: item.product.name,
+            quantity: item.quantity
+          }))
+        }),
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        setFormSubmitted(true);
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
+    } catch (error) {
+      console.error("Error submitting customization request:", error);
+      alert("Failed to submit request. Please try again.");
+    }
   };
 
   const customizationServices = [

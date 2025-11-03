@@ -106,16 +106,31 @@ export function SchedulerModal({ isOpen, onClose, defaultMeetingType = "consulta
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Meeting scheduled:", {
-      ...formData,
-      sampleCartItems: cartItems.map(item => ({
-        product: item.product.name,
-        quantity: item.quantity
-      }))
-    });
-    setSubmitted(true);
+    
+    try {
+      const response = await fetch("/api/meetings", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ...formData,
+          sampleCartItems: cartItems.map(item => ({
+            productName: item.product.name,
+            quantity: item.quantity
+          }))
+        }),
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        setSubmitted(true);
+      }
+    } catch (error) {
+      console.error("Error scheduling meeting:", error);
+      alert("Failed to schedule meeting. Please try again.");
+    }
   };
 
   const resetForm = () => {

@@ -4,7 +4,7 @@ import React from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Plus, Minus, Trash2, Package } from "lucide-react";
+import { X, Plus, Minus, Trash2, Package, CheckCircle } from "lucide-react";
 import { useCart } from "@/contexts/CartContext";
 import { Button } from "@/components/ui/Button";
 
@@ -90,10 +90,10 @@ export function CartDrawer() {
                   </div>
                   
                   <div>
-                    <Link href="/contact" onClick={closeCart}>
+                    <Link href="/checkout" onClick={closeCart}>
                       <Button size="lg" className="w-full mb-3">
-                        <Package className="mr-2 w-5 h-5" />
-                        Request Samples & Quote
+                        <CheckCircle className="mr-2 w-5 h-5" />
+                        Checkout Now
                       </Button>
                     </Link>
                     <Button 

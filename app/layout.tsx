@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 import { CartProvider } from "@/contexts/CartContext";
+import { SessionProvider } from "@/components/providers/SessionProvider";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { CartDrawer } from "@/components/cart/CartDrawer";
@@ -21,17 +22,19 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <ThemeProvider>
-          <CartProvider>
-            <Header />
-            <main className="min-h-screen">
-              {children}
-            </main>
-            <Footer />
-            <CartDrawer />
-            <FloatingScheduler />
-          </CartProvider>
-        </ThemeProvider>
+        <SessionProvider>
+          <ThemeProvider>
+            <CartProvider>
+              <Header />
+              <main className="min-h-screen">
+                {children}
+              </main>
+              <Footer />
+              <CartDrawer />
+              <FloatingScheduler />
+            </CartProvider>
+          </ThemeProvider>
+        </SessionProvider>
       </body>
     </html>
   );

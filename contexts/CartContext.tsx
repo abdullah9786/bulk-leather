@@ -1,6 +1,7 @@
 "use client";
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from "react";
+import { useSession } from "next-auth/react";
 import { Product } from "@/types";
 
 export interface CartItem {
@@ -19,28 +20,95 @@ interface CartContextType {
   isCartOpen: boolean;
   openCart: () => void;
   closeCart: () => void;
+  syncWithDatabase: () => Promise<void>;
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
 export function CartProvider({ children }: { children: ReactNode }) {
+  const { data: session, status } = useSession();
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     setMounted(true);
+    loadCart();
+  }, [status]);
+
+  const loadCart = () => {
+    // Load from localStorage initially
     const savedCart = localStorage.getItem("bulk-leather-cart");
     if (savedCart) {
       setCartItems(JSON.parse(savedCart));
     }
-  }, []);
+
+    // If user is logged in, sync with database
+    if (status === "authenticated" && session?.user) {
+      syncFromDatabase();
+    }
+  };
+
+  const syncFromDatabase = async () => {
+    try {
+      console.log("🔄 Syncing cart from database...");
+      const response = await fetch("/api/cart");
+      const data = await response.json();
+      
+      console.log("Cart sync response:", data);
+      
+      if (data.success && data.data.length > 0) {
+        // Use database cart if exists
+        console.log("✅ Using cart from database:", data.data.length, "items");
+        setCartItems(data.data);
+        localStorage.removeItem("bulk-leather-cart");
+      } else {
+        // Sync localStorage cart to database
+        const localCart = localStorage.getItem("bulk-leather-cart");
+        if (localCart) {
+          const cartData = JSON.parse(localCart);
+          console.log("📤 Syncing localStorage cart to database:", cartData.length, "items");
+          await fetch("/api/cart", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ cart: cartData }),
+          });
+          console.log("✅ Cart synced to database");
+          localStorage.removeItem("bulk-leather-cart");
+        } else {
+          console.log("ℹ️ No cart data to sync");
+        }
+      }
+    } catch (error) {
+      console.error("❌ Error syncing cart:", error);
+    }
+  };
+
+  const syncWithDatabase = async () => {
+    if (status === "authenticated" && cartItems.length > 0) {
+      try {
+        await fetch("/api/cart", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ cart: cartItems }),
+        });
+      } catch (error) {
+        console.error("Error syncing to database:", error);
+      }
+    }
+  };
 
   useEffect(() => {
     if (mounted) {
-      localStorage.setItem("bulk-leather-cart", JSON.stringify(cartItems));
+      if (status === "authenticated") {
+        // Sync to database if logged in
+        syncWithDatabase();
+      } else {
+        // Save to localStorage if not logged in
+        localStorage.setItem("bulk-leather-cart", JSON.stringify(cartItems));
+      }
     }
-  }, [cartItems, mounted]);
+  }, [cartItems, mounted, status]);
 
   const addToCart = (product: Product, quantity: number = 1) => {
     setCartItems((prevItems) => {

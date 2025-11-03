@@ -11,20 +11,60 @@ import { Input } from "@/components/ui/Input";
 import { Select } from "@/components/ui/Select";
 import { SchedulerButton } from "@/components/scheduler/SchedulerButton";
 import { Search, Grid, List, Package, ShoppingCart, Check } from "lucide-react";
-import products from "@/data/products.json";
 import { Product } from "@/types";
 import { useCart } from "@/contexts/CartContext";
+
+interface Category {
+  _id?: string;
+  id?: string;
+  name: string;
+  slug: string;
+}
 
 export default function ProductsPage() {
   const searchParams = useSearchParams();
   const categoryParam = searchParams.get("category");
   const { addToCart } = useCart();
   
+  const [products, setProducts] = useState<Product[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState(categoryParam || "all");
   const [selectedMaterial, setSelectedMaterial] = useState("all");
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [addedProductId, setAddedProductId] = useState<string | null>(null);
+
+  // Fetch products and categories from API
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  const fetchData = async () => {
+    try {
+      const [productsRes, categoriesRes] = await Promise.all([
+        fetch("/api/products?isActive=true"),
+        fetch("/api/categories?isActive=true"),
+      ]);
+
+      const [productsData, categoriesData] = await Promise.all([
+        productsRes.json(),
+        categoriesRes.json(),
+      ]);
+      
+      if (productsData.success) {
+        setProducts(productsData.data);
+      }
+
+      if (categoriesData.success) {
+        setCategories(categoriesData.data);
+      }
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   // Update selected category when URL changes
   useEffect(() => {
@@ -36,36 +76,63 @@ export default function ProductsPage() {
   }, [categoryParam]);
 
   const handleQuickAdd = (product: Product) => {
+    const productId = (product as any)._id || product.id;
     addToCart(product, 1);
-    setAddedProductId(product.id);
+    setAddedProductId(productId);
     setTimeout(() => setAddedProductId(null), 2000);
   };
 
-  // Extract unique categories and materials
-  const categories = useMemo(() => {
-    const cats = new Set(products.map((p) => p.category));
-    return ["all", ...Array.from(cats)];
-  }, []);
-
+  // Extract unique materials from products
   const materials = useMemo(() => {
     const mats = new Set(products.map((p) => p.material));
     return ["all", ...Array.from(mats)];
-  }, []);
+  }, [products]);
+
+  // Create category options from API data
+  const categoryOptions = useMemo(() => {
+    return [
+      { value: "all", label: "All Categories" },
+      ...categories.map((cat) => ({
+        value: cat.slug,
+        label: cat.name,
+      })),
+    ];
+  }, [categories]);
 
   // Filter products
   const filteredProducts = useMemo(() => {
-    return products.filter((product) => {
+    if (products.length === 0) {
+      return [];
+    }
+
+    console.log("Filtering products:", {
+      totalProducts: products.length,
+      searchTerm,
+      selectedCategory,
+      selectedMaterial,
+    });
+
+    const filtered = products.filter((product) => {
       const matchesSearch =
+        searchTerm === "" ||
         product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         product.description.toLowerCase().includes(searchTerm.toLowerCase());
+      
+      // Match against product.category directly (it's the slug like "bags", "jackets")
       const matchesCategory =
         selectedCategory === "all" || product.category === selectedCategory;
+      
       const matchesMaterial =
         selectedMaterial === "all" || product.material === selectedMaterial;
 
       return matchesSearch && matchesCategory && matchesMaterial;
     });
-  }, [searchTerm, selectedCategory, selectedMaterial]);
+
+    console.log("Filtered results:", filtered.length);
+    console.log("Sample product category:", products[0]?.category);
+    console.log("Selected category:", selectedCategory);
+    return filtered;
+  }, [searchTerm, selectedCategory, selectedMaterial, products]);
 
   return (
     <div className="py-12">
@@ -112,10 +179,7 @@ export default function ProductsPage() {
             <Select
               value={selectedCategory}
               onChange={(e) => setSelectedCategory(e.target.value)}
-              options={categories.map((cat) => ({
-                value: cat,
-                label: cat === "all" ? "All Categories" : cat.charAt(0).toUpperCase() + cat.slice(1),
-              }))}
+              options={categoryOptions}
             />
 
             {/* Material Filter */}
@@ -162,7 +226,11 @@ export default function ProductsPage() {
         </motion.div>
 
         {/* Products Grid/List */}
-        {filteredProducts.length === 0 ? (
+        {loading ? (
+          <div className="flex justify-center py-20">
+            <div className="w-12 h-12 border-4 border-[var(--color-accent)] border-t-transparent rounded-full animate-spin" />
+          </div>
+        ) : products.length === 0 ? (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -170,10 +238,24 @@ export default function ProductsPage() {
           >
             <Package className="w-20 h-20 text-[var(--color-body)] mx-auto mb-4" />
             <h3 className="text-2xl font-semibold text-[var(--color-text)] mb-2">
-              No products found
+              No products available
             </h3>
             <p className="text-[var(--color-body)]">
-              Try adjusting your filters or search terms
+              Please run the database setup first or add products via admin panel
+            </p>
+          </motion.div>
+        ) : filteredProducts.length === 0 ? (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="text-center py-20"
+          >
+            <Package className="w-20 h-20 text-[var(--color-body)] mx-auto mb-4" />
+            <h3 className="text-2xl font-semibold text-[var(--color-text)] mb-2">
+              No products match your filters
+            </h3>
+            <p className="text-[var(--color-body)]">
+              Try adjusting your search terms or filters
             </p>
           </motion.div>
         ) : (
@@ -184,28 +266,31 @@ export default function ProductsPage() {
                 : "flex flex-col space-y-6"
             }
           >
-            {filteredProducts.map((product, index) => (
-              <motion.div
-                key={product.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.05 }}
-              >
-                {viewMode === "grid" ? (
-                  <ProductCard 
-                    product={product} 
-                    onQuickAdd={handleQuickAdd}
-                    isAdded={addedProductId === product.id}
-                  />
-                ) : (
-                  <ProductListItem 
-                    product={product}
-                    onQuickAdd={handleQuickAdd}
-                    isAdded={addedProductId === product.id}
-                  />
-                )}
-              </motion.div>
-            ))}
+            {filteredProducts.map((product, index) => {
+              const productId = (product as any)._id || product.id;
+              return (
+                <motion.div
+                  key={productId}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.05 }}
+                >
+                  {viewMode === "grid" ? (
+                    <ProductCard 
+                      product={product} 
+                      onQuickAdd={handleQuickAdd}
+                      isAdded={addedProductId === productId}
+                    />
+                  ) : (
+                    <ProductListItem 
+                      product={product}
+                      onQuickAdd={handleQuickAdd}
+                      isAdded={addedProductId === productId}
+                    />
+                  )}
+                </motion.div>
+              );
+            })}
           </div>
         )}
       </div>
@@ -223,9 +308,11 @@ function ProductCard({
   onQuickAdd: (product: Product) => void;
   isAdded: boolean;
 }) {
+  const productId = (product as any)._id || product.id;
+  
   return (
     <Card className="group overflow-hidden p-0 h-full flex flex-col">
-      <Link href={`/products/${product.id}`}>
+      <Link href={`/products/${productId}`}>
         <div className="relative h-64 overflow-hidden cursor-pointer">
           <Image
             src={product.images[0]}
@@ -239,7 +326,7 @@ function ProductCard({
         </div>
       </Link>
       <div className="p-6 flex-1 flex flex-col">
-        <Link href={`/products/${product.id}`} className="cursor-pointer">
+        <Link href={`/products/${productId}`} className="cursor-pointer">
           <div className="mb-2">
             <span className="text-xs font-semibold text-[var(--color-accent)] uppercase tracking-wide">
               {product.category}
@@ -257,7 +344,7 @@ function ProductCard({
             <span className="text-lg font-bold text-[var(--color-text)]">
               {product.priceRange}
             </span>
-            <Link href={`/products/${product.id}`}>
+            <Link href={`/products/${productId}`}>
               <Button variant="ghost" size="sm" className="hover:text-[var(--color-accent)]">
                 Details →
               </Button>
@@ -301,10 +388,12 @@ function ProductListItem({
   onQuickAdd: (product: Product) => void;
   isAdded: boolean;
 }) {
+  const productId = (product as any)._id || product.id;
+  
   return (
     <Card className="group overflow-hidden p-0">
       <div className="flex flex-col md:flex-row">
-        <Link href={`/products/${product.id}`} className="relative w-full md:w-80 h-64 flex-shrink-0 cursor-pointer">
+        <Link href={`/products/${productId}`} className="relative w-full md:w-80 h-64 flex-shrink-0 cursor-pointer">
           <Image
             src={product.images[0]}
             alt={product.name}
@@ -314,7 +403,7 @@ function ProductListItem({
         </Link>
         <div className="p-6 flex-1">
           <div className="flex items-start justify-between mb-3">
-            <Link href={`/products/${product.id}`} className="cursor-pointer flex-1">
+            <Link href={`/products/${productId}`} className="cursor-pointer flex-1">
               <span className="text-xs font-semibold text-[var(--color-accent)] uppercase tracking-wide">
                 {product.category}
               </span>
@@ -344,7 +433,7 @@ function ProductListItem({
             </div>
           </div>
           <div className="flex flex-wrap gap-3">
-            <Link href={`/products/${product.id}`}>
+            <Link href={`/products/${productId}`}>
               <Button variant="outline" size="sm">
                 View Full Details →
               </Button>

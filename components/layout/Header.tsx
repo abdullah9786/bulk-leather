@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
@@ -8,8 +8,8 @@ import { Menu, X, Palette, ChevronDown } from "lucide-react";
 import { useTheme, themeConfig } from "@/contexts/ThemeContext";
 import { cn } from "@/lib/utils";
 import { ThemeType } from "@/types";
-import categories from "@/data/categories.json";
 import { CartButton } from "@/components/cart/CartButton";
+import { UserMenu } from "./UserMenu";
 
 const navLinks = [
   { href: "/", label: "Home" },
@@ -19,12 +19,38 @@ const navLinks = [
   { href: "/contact", label: "Contact" },
 ];
 
+interface Category {
+  _id?: string;
+  id: string;
+  name: string;
+  slug: string;
+  description: string;
+}
+
 export const Header = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [themeMenuOpen, setThemeMenuOpen] = useState(false);
   const [categoriesMenuOpen, setCategoriesMenuOpen] = useState(false);
+  const [categories, setCategories] = useState<Category[]>([]);
   const pathname = usePathname();
   const { theme, setTheme } = useTheme();
+
+  useEffect(() => {
+    fetchCategories();
+  }, []);
+
+  const fetchCategories = async () => {
+    try {
+      const response = await fetch("/api/categories?isActive=true");
+      const data = await response.json();
+      
+      if (data.success) {
+        setCategories(data.data);
+      }
+    } catch (error) {
+      console.error("Error fetching categories:", error);
+    }
+  };
 
   const themes: { key: ThemeType; name: string }[] = [
     { key: "luxurySand", name: themeConfig.luxurySand.name },
@@ -85,27 +111,36 @@ export const Header = () => {
                     onMouseLeave={() => setCategoriesMenuOpen(false)}
                     className="absolute right-0 mt-2 w-64 bg-[var(--color-card)] rounded-lg shadow-xl border-2 border-[var(--color-secondary)] p-2"
                   >
-                    {categories.map((category) => (
-                      <Link
-                        key={category.id}
-                        href={`/products?category=${category.slug}`}
-                        onClick={() => setCategoriesMenuOpen(false)}
-                        className="block px-4 py-2 rounded-lg hover:bg-[var(--color-secondary)] text-[var(--color-body)] hover:text-[var(--color-accent)] transition-colors text-sm"
-                      >
-                        <div className="font-medium">{category.name}</div>
-                        <div className="text-xs text-[var(--color-body)] mt-0.5">
-                          {category.description}
-                        </div>
-                      </Link>
-                    ))}
+                    {categories.length === 0 ? (
+                      <div className="px-4 py-2 text-sm text-[var(--color-body)]">
+                        Loading...
+                      </div>
+                    ) : (
+                      categories.map((category) => (
+                        <Link
+                          key={category._id || category.id}
+                          href={`/products?category=${category.slug}`}
+                          onClick={() => setCategoriesMenuOpen(false)}
+                          className="block px-4 py-2 rounded-lg hover:bg-[var(--color-secondary)] text-[var(--color-body)] hover:text-[var(--color-accent)] transition-colors text-sm"
+                        >
+                          <div className="font-medium">{category.name}</div>
+                          <div className="text-xs text-[var(--color-body)] mt-0.5">
+                            {category.description}
+                          </div>
+                        </Link>
+                      ))
+                    )}
                   </motion.div>
                 )}
               </AnimatePresence>
             </div>
           </div>
 
-          {/* Cart, Theme Switcher & Mobile Menu Button */}
+          {/* User Menu, Cart, Theme Switcher & Mobile Menu Button */}
           <div className="flex items-center space-x-4">
+            {/* User Menu */}
+            <UserMenu />
+
             {/* Cart Button */}
             <CartButton />
 
@@ -195,16 +230,22 @@ export const Header = () => {
                   <div className="px-4 py-2 text-xs font-semibold text-[var(--color-accent)] uppercase">
                     Categories
                   </div>
-                  {categories.map((category) => (
-                    <Link
-                      key={category.id}
-                      href={`/products?category=${category.slug}`}
-                      onClick={() => setMobileMenuOpen(false)}
-                      className="block px-4 py-2 rounded-lg hover:bg-[var(--color-secondary)] text-[var(--color-body)] transition-colors"
-                    >
-                      {category.name}
-                    </Link>
-                  ))}
+                  {categories.length === 0 ? (
+                    <div className="px-4 py-2 text-sm text-[var(--color-body)]">
+                      Loading categories...
+                    </div>
+                  ) : (
+                    categories.map((category) => (
+                      <Link
+                        key={category._id || category.id}
+                        href={`/products?category=${category.slug}`}
+                        onClick={() => setMobileMenuOpen(false)}
+                        className="block px-4 py-2 rounded-lg hover:bg-[var(--color-secondary)] text-[var(--color-body)] transition-colors"
+                      >
+                        {category.name}
+                      </Link>
+                    ))
+                  )}
                 </div>
               </div>
             </motion.div>

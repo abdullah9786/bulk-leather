@@ -43,6 +43,7 @@ export function SchedulerModal({ isOpen, onClose, defaultMeetingType = "consulta
     message: "",
   });
   const [submitted, setSubmitted] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
 
   const meetingTypes = [
     { value: "consultation", label: "General Consultation" },
@@ -55,9 +56,9 @@ export function SchedulerModal({ isOpen, onClose, defaultMeetingType = "consulta
   const meetingModes = [
     { 
       value: "video", 
-      label: "Video Call", 
+      label: "Google Meet", 
       icon: Video,
-      description: "Zoom or Google Meet"
+      description: "Auto-generated Meet link"
     },
     { 
       value: "phone", 
@@ -106,10 +107,15 @@ export function SchedulerModal({ isOpen, onClose, defaultMeetingType = "consulta
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
+  const [meetingResponse, setMeetingResponse] = useState<any>(null);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setSubmitting(true);
     
     try {
+      console.log("📤 Submitting meeting request...");
+      
       const response = await fetch("/api/meetings", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -125,11 +131,18 @@ export function SchedulerModal({ isOpen, onClose, defaultMeetingType = "consulta
       const data = await response.json();
 
       if (data.success) {
+        console.log("✅ Meeting scheduled successfully");
+        setMeetingResponse(data);
         setSubmitted(true);
+      } else {
+        console.error("❌ Meeting scheduling failed:", data.error);
+        alert(`Failed to schedule meeting: ${data.error || 'Unknown error'}`);
       }
     } catch (error) {
-      console.error("Error scheduling meeting:", error);
-      alert("Failed to schedule meeting. Please try again.");
+      console.error("❌ Error scheduling meeting:", error);
+      alert("Failed to schedule meeting. Please check your connection and try again.");
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -147,6 +160,7 @@ export function SchedulerModal({ isOpen, onClose, defaultMeetingType = "consulta
     });
     setStep(1);
     setSubmitted(false);
+    setMeetingResponse(null);
     onClose();
   };
 
@@ -242,13 +256,61 @@ export function SchedulerModal({ isOpen, onClose, defaultMeetingType = "consulta
                   </div>
                 </div>
 
+                {/* Google Meet Link */}
+                {meetingResponse?.googleMeetLink && (
+                  <div className="bg-blue-50 border-2 border-blue-200 rounded-xl p-6 mb-6">
+                    <div className="flex items-center gap-2 mb-3">
+                      <Video className="w-5 h-5 text-blue-600" />
+                      <h4 className="font-semibold text-blue-900">Google Meet Link Created!</h4>
+                    </div>
+                    <a
+                      href={meetingResponse.googleMeetLink}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="block bg-white p-4 rounded-lg mb-3 hover:bg-blue-50 transition-colors"
+                    >
+                      <p className="text-sm text-blue-600 font-mono break-all">
+                        {meetingResponse.googleMeetLink}
+                      </p>
+                    </a>
+                    {meetingResponse.googleCalendarUrl && (
+                      <a
+                        href={meetingResponse.googleCalendarUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-2 text-sm text-blue-600 hover:text-blue-700 font-medium"
+                      >
+                        <Calendar className="w-4 h-4" />
+                        Add to Google Calendar
+                      </a>
+                    )}
+                  </div>
+                )}
+
                 <p className="text-sm text-[var(--color-body)] mb-8">
-                  Our team will contact you 15 minutes before the scheduled time.
+                  {meetingResponse?.googleMeetLink 
+                    ? "Google Meet link has been sent to your email. Save the link above!"
+                    : "Our team will contact you 15 minutes before the scheduled time."}
                 </p>
 
-                <Button size="lg" onClick={resetForm}>
-                  Schedule Another Meeting
-                </Button>
+                <div className="flex gap-3">
+                  <Button size="lg" onClick={resetForm} className="flex-1">
+                    Schedule Another Meeting
+                  </Button>
+                  {meetingResponse?.googleMeetLink && (
+                    <Button 
+                      size="lg" 
+                      variant="outline"
+                      onClick={() => {
+                        navigator.clipboard.writeText(meetingResponse.googleMeetLink);
+                        alert("Google Meet link copied to clipboard!");
+                      }}
+                      className="flex-1"
+                    >
+                      Copy Meet Link
+                    </Button>
+                  )}
+                </div>
               </motion.div>
             ) : (
               <form onSubmit={handleSubmit}>
@@ -533,14 +595,23 @@ export function SchedulerModal({ isOpen, onClose, defaultMeetingType = "consulta
                         variant="outline"
                         className="flex-1"
                         onClick={() => setStep(2)}
+                        disabled={submitting}
                       >
                         Back
                       </Button>
                       <Button 
                         type="submit" 
                         className="flex-1"
+                        disabled={submitting}
                       >
-                        Confirm Meeting
+                        {submitting ? (
+                          <>
+                            <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
+                            Scheduling...
+                          </>
+                        ) : (
+                          "Confirm Meeting"
+                        )}
                       </Button>
                     </div>
                   </motion.div>

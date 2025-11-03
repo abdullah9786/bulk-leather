@@ -34,10 +34,30 @@ export const Header = () => {
   const [categories, setCategories] = useState<Category[]>([]);
   const pathname = usePathname();
   const { theme, setTheme } = useTheme();
+  const themeMenuRef = React.useRef<HTMLDivElement>(null);
+  const categoriesMenuRef = React.useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     fetchCategories();
   }, []);
+
+  // Close theme menu when clicking outside
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (themeMenuRef.current && !themeMenuRef.current.contains(event.target as Node)) {
+        setThemeMenuOpen(false);
+      }
+    }
+
+    if (themeMenuOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+      return () => {
+        document.removeEventListener("mousedown", handleClickOutside);
+      };
+    }
+  }, [themeMenuOpen]);
+
+  // Categories menu is now controlled by hover, no click-outside needed
 
   const fetchCategories = async () => {
     try {
@@ -75,26 +95,27 @@ export const Header = () => {
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-8">
-            {navLinks.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                className={cn(
-                  "text-sm font-medium transition-colors duration-300 hover:text-[var(--color-accent)]",
-                  pathname === link.href
-                    ? "text-[var(--color-accent)]"
-                    : "text-[var(--color-body)]"
-                )}
-              >
-                {link.label}
-              </Link>
-            ))}
-            
+            {/* Home */}
+            <Link
+              href="/"
+              className={cn(
+                "text-sm font-medium transition-colors duration-300 hover:text-[var(--color-accent)]",
+                pathname === "/"
+                  ? "text-[var(--color-accent)]"
+                  : "text-[var(--color-body)]"
+              )}
+            >
+              Home
+            </Link>
+
             {/* Categories Dropdown */}
-            <div className="relative">
+            <div 
+              className="relative" 
+              ref={categoriesMenuRef}
+              onMouseEnter={() => setCategoriesMenuOpen(true)}
+              onMouseLeave={() => setCategoriesMenuOpen(false)}
+            >
               <button
-                onMouseEnter={() => setCategoriesMenuOpen(true)}
-                onMouseLeave={() => setCategoriesMenuOpen(false)}
                 className="flex items-center gap-1 text-sm font-medium text-[var(--color-body)] hover:text-[var(--color-accent)] transition-colors"
               >
                 Categories
@@ -107,9 +128,7 @@ export const Header = () => {
                     initial={{ opacity: 0, y: -10 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -10 }}
-                    onMouseEnter={() => setCategoriesMenuOpen(true)}
-                    onMouseLeave={() => setCategoriesMenuOpen(false)}
-                    className="absolute right-0 mt-2 w-64 bg-[var(--color-card)] rounded-lg shadow-xl border-2 border-[var(--color-secondary)] p-2"
+                    className="absolute left-0 mt-2 w-64 bg-[var(--color-card)] rounded-lg shadow-xl border-2 border-[var(--color-secondary)] p-2"
                   >
                     {categories.length === 0 ? (
                       <div className="px-4 py-2 text-sm text-[var(--color-body)]">
@@ -134,6 +153,22 @@ export const Header = () => {
                 )}
               </AnimatePresence>
             </div>
+
+            {/* Other Nav Links */}
+            {navLinks.slice(1).map((link) => (
+              <Link
+                key={link.href}
+                href={link.href}
+                className={cn(
+                  "text-sm font-medium transition-colors duration-300 hover:text-[var(--color-accent)]",
+                  pathname === link.href
+                    ? "text-[var(--color-accent)]"
+                    : "text-[var(--color-body)]"
+                )}
+              >
+                {link.label}
+              </Link>
+            ))}
           </div>
 
           {/* User Menu, Cart, Theme Switcher & Mobile Menu Button */}
@@ -145,7 +180,7 @@ export const Header = () => {
             <CartButton />
 
             {/* Theme Switcher */}
-            <div className="relative">
+            <div className="relative" ref={themeMenuRef}>
               <button
                 onClick={() => setThemeMenuOpen(!themeMenuOpen)}
                 className="p-2 rounded-lg hover:bg-[var(--color-secondary)] transition-colors"

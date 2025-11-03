@@ -30,6 +30,16 @@ NEXT_PUBLIC_APP_URL=http://localhost:3000
 NEXTAUTH_URL=http://localhost:3000
 NEXT_PUBLIC_API_URL=http://localhost:3000/api
 
+# Email Service (SMTP - Gmail or any email provider)
+# For Gmail: Use App Password (not regular password)
+# Get from: Google Account → Security → 2-Step Verification → App Passwords
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=587
+SMTP_USER=youremail@gmail.com
+SMTP_PASS=your-gmail-app-password
+EMAIL_FROM=BulkLeather <youremail@gmail.com>
+ADMIN_EMAIL=youremail@gmail.com
+
 # Node Environment
 NODE_ENV=development
 

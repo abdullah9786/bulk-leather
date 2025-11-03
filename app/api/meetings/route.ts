@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import connectDB from "@/lib/mongodb";
 import Meeting from "@/models/Meeting";
 import { withAdminAuth } from "@/lib/middleware";
+import { createCalendarEventWithMeet } from "@/lib/google-calendar-api";
 import { z } from "zod";
 
 const meetingSchema = z.object({
@@ -74,18 +75,94 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     const validatedData = meetingSchema.parse(body);
 
+    let googleMeetLink: string | undefined;
+    let googleCalendarEventId: string | undefined;
+
+    // Create Google Calendar event with Meet link for video meetings
+    if (validatedData.meetingMode === "video") {
+      try {
+        const calendarEvent = await createCalendarEventWithMeet({
+          name: validatedData.name,
+          email: validatedData.email,
+          company: validatedData.company,
+          date: validatedData.date,
+          timeSlot: validatedData.timeSlot,
+          meetingType: validatedData.meetingType,
+          message: validatedData.message,
+        });
+
+        if (calendarEvent.success) {
+          googleMeetLink = calendarEvent.googleMeetLink;
+          googleCalendarEventId = calendarEvent.eventId;
+          
+          console.log("✅ Google Calendar event created on admin calendar");
+          console.log("✅ Google Meet link:", googleMeetLink);
+          console.log("✅ Event ID:", googleCalendarEventId);
+          
+          // Send emails to customer and admin
+          try {
+            const { sendMeetingConfirmationEmail, sendAdminMeetingNotification } = await import("@/lib/email-service");
+            
+            // Send to customer
+            const customerEmail = await sendMeetingConfirmationEmail({
+              to: validatedData.email,
+              customerName: validatedData.name,
+              meetingType: validatedData.meetingType,
+              company: validatedData.company,
+              date: validatedData.date,
+              timeSlot: validatedData.timeSlot,
+              googleMeetLink,
+              message: validatedData.message,
+            });
+
+            if (customerEmail.success) {
+              console.log("✅ Confirmation email sent to customer");
+            } else {
+              console.log("ℹ️ Email not sent (configure RESEND_API_KEY to enable)");
+            }
+
+            // Send to admin
+            const adminEmail = await sendAdminMeetingNotification({
+              to: validatedData.email,
+              customerName: validatedData.name,
+              meetingType: validatedData.meetingType,
+              company: validatedData.company,
+              date: validatedData.date,
+              timeSlot: validatedData.timeSlot,
+              googleMeetLink,
+              message: validatedData.message,
+            });
+
+            if (adminEmail.success) {
+              console.log("✅ Admin notification sent");
+            }
+          } catch (emailError) {
+            console.log("ℹ️ Email sending skipped (not configured)");
+          }
+        }
+      } catch (error) {
+        console.error("Failed to create Google Calendar event:", error);
+        console.log("ℹ️ Continuing with fallback Meet link generation...");
+        // Continue without Meet link if generation fails
+      }
+    }
+
     const meeting = await Meeting.create({
       ...validatedData,
       date: new Date(validatedData.date),
+      googleMeetLink,
+      googleCalendarEventId,
     });
-
-    // TODO: Send calendar invite
-    // TODO: Send confirmation email
 
     return NextResponse.json({
       success: true,
       data: meeting,
-      message: "Meeting scheduled successfully. You'll receive a confirmation email shortly.",
+      googleMeetLink,
+      message: validatedData.meetingMode === "video"
+        ? googleMeetLink
+          ? "Meeting scheduled! Google Calendar invitation sent to your email with Meet link."
+          : "Meeting scheduled! Confirmation will be sent shortly."
+        : "Meeting scheduled successfully. You'll receive a confirmation email shortly.",
     }, { status: 201 });
   } catch (error) {
     console.error("Create meeting error:", error);

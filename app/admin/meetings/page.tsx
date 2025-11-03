@@ -27,6 +27,8 @@ interface Meeting {
   message?: string;
   sampleCartItems?: Array<{ productName: string; quantity: number }>;
   status: string;
+  googleMeetLink?: string;
+  googleCalendarEventId?: string;
   createdAt: string;
 }
 
@@ -350,6 +352,21 @@ export default function AdminMeetingsPage() {
                   <p className="font-medium text-gray-900 capitalize">{selectedMeeting.meetingMode}</p>
                 </div>
               </div>
+              {selectedMeeting.googleMeetLink && (
+                <div>
+                  <p className="text-sm text-gray-500 mb-2">Google Meet Link</p>
+                  <div className="bg-blue-50 border border-blue-200 p-4 rounded-lg">
+                    <a
+                      href={selectedMeeting.googleMeetLink}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-blue-600 hover:text-blue-700 font-mono text-sm break-all"
+                    >
+                      {selectedMeeting.googleMeetLink}
+                    </a>
+                  </div>
+                </div>
+              )}
               {selectedMeeting.message && (
                 <div>
                   <p className="text-sm text-gray-500 mb-1">Message</p>

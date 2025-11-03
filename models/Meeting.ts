@@ -16,6 +16,8 @@ export interface IMeeting {
     quantity: number;
   }>;
   status: "scheduled" | "completed" | "cancelled";
+  googleMeetLink?: string;
+  googleCalendarEventId?: string;
   notes?: string;
   createdAt: Date;
   updatedAt: Date;
@@ -72,6 +74,12 @@ const MeetingSchema = new Schema<IMeeting>(
       type: String,
       enum: ["scheduled", "completed", "cancelled"],
       default: "scheduled",
+    },
+    googleMeetLink: {
+      type: String,
+    },
+    googleCalendarEventId: {
+      type: String,
     },
     notes: {
       type: String,

@@ -8,6 +8,7 @@ import { User, LogOut, ShoppingBag, ChevronDown } from "lucide-react";
 export function UserMenu() {
   const { data: session, status } = useSession();
   const [menuOpen, setMenuOpen] = useState(false);
+  const menuRef = React.useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     console.log("👤 UserMenu - Auth status:", status);
@@ -16,6 +17,22 @@ export function UserMenu() {
       console.log("User role:", (session.user as any)?.role);
     }
   }, [status, session]);
+
+  // Close menu when clicking outside
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setMenuOpen(false);
+      }
+    }
+
+    if (menuOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+      return () => {
+        document.removeEventListener("mousedown", handleClickOutside);
+      };
+    }
+  }, [menuOpen]);
 
   if (status === "loading") {
     console.log("⏳ Loading session...");
@@ -42,7 +59,7 @@ export function UserMenu() {
   console.log("✅ Showing user menu for:", session.user?.email);
 
   return (
-    <div className="relative">
+    <div className="relative" ref={menuRef}>
       <button
         onClick={() => setMenuOpen(!menuOpen)}
         className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-[var(--color-secondary)] transition-colors"

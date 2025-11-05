@@ -250,6 +250,11 @@ export default function AdminMeetingsPage() {
                           {new Date(meeting.date).toLocaleDateString()}
                         </p>
                         <p className="text-xs text-gray-500">{meeting.timeSlot}</p>
+                        {meeting.timezone && (
+                          <p className="text-xs text-blue-600 mt-0.5">
+                            🌍 {meeting.timezone.split('/')[1]?.replace('_', ' ') || meeting.timezone}
+                          </p>
+                        )}
                       </td>
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-2">
@@ -341,7 +346,12 @@ export default function AdminMeetingsPage() {
                 </div>
                 <div>
                   <p className="text-sm text-gray-500 mb-1">Time</p>
-                  <p className="font-medium text-gray-900">{selectedMeeting.timeSlot} EST</p>
+                  <p className="font-medium text-gray-900">{selectedMeeting.timeSlot}</p>
+                  {selectedMeeting.timezone && (
+                    <p className="text-xs text-blue-600 mt-1">
+                      🌍 {selectedMeeting.timezone}
+                    </p>
+                  )}
                 </div>
                 <div>
                   <p className="text-sm text-gray-500 mb-1">Meeting Type</p>

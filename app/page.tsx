@@ -281,14 +281,14 @@ export default function HomePage() {
 
                         {/* CTA Buttons */}
                         <div className="grid grid-cols-2 gap-3">
-                          <Link href={`/products/${productId}`}>
-                            <Button variant="primary" size="sm" className="w-full group">
+                          <Link href={`/products/${productId}`} className="w-full">
+                            <Button variant="primary" size="sm" className="w-full h-10 group whitespace-nowrap">
                               Get Quote
                               <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
                             </Button>
                           </Link>
-                          <Link href={`/products/${productId}`}>
-                            <Button variant="outline" size="sm" className="w-full group">
+                          <Link href={`/products/${productId}`} className="w-full">
+                            <Button variant="outline" size="sm" className="w-full h-10 group whitespace-nowrap">
                               View Details
                               <Package className="ml-2 w-4 h-4" />
                             </Button>

@@ -11,6 +11,7 @@ export interface IMeeting {
   meetingMode: "video" | "phone" | "whatsapp" | "inperson";
   date: Date;
   timeSlot: string;
+  timezone?: string; // User's IANA timezone (e.g., America/New_York)
   message?: string;
   sampleCartItems?: Array<{
     productName: string;
@@ -67,6 +68,10 @@ const MeetingSchema = new Schema<IMeeting>(
     timeSlot: {
       type: String,
       required: [true, "Time slot is required"],
+    },
+    timezone: {
+      type: String,
+      default: "Asia/Kolkata", // Default to IST if not provided
     },
     message: {
       type: String,

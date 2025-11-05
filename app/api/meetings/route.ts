@@ -16,6 +16,7 @@ const meetingSchema = z.object({
   meetingMode: z.enum(["video", "phone", "whatsapp", "inperson"]),
   date: z.string(),
   timeSlot: z.string(),
+  timezone: z.string().optional(), // User's IANA timezone
   message: z.string().optional(),
   sampleCartItems: z.array(z.object({
     productName: z.string(),
@@ -91,6 +92,7 @@ export async function POST(req: NextRequest) {
           timeSlot: validatedData.timeSlot,
           meetingType: validatedData.meetingType,
           message: validatedData.message,
+          timezone: validatedData.timezone, // Pass user's timezone
         });
 
         if (calendarEvent.success) {
@@ -164,6 +166,7 @@ export async function POST(req: NextRequest) {
     });
 
     console.log("✅ Meeting created:", meeting._id);
+    console.log("🌍 Timezone:", validatedData.timezone || "Asia/Kolkata (default)");
     if (session?.user) {
       console.log("✅ Linked to user ID:", userId);
     } else {

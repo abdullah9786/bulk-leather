@@ -14,7 +14,8 @@ import {
   X,
   Users,
   ShoppingCart,
-  Star
+  Star,
+  Image
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -25,6 +26,7 @@ const navItems = [
   { href: "/admin/orders", label: "Sample Orders", icon: ShoppingCart },
   { href: "/admin/inquiries", label: "Inquiries", icon: Mail },
   { href: "/admin/meetings", label: "Meetings", icon: Calendar },
+  { href: "/admin/gallery", label: "Gallery", icon: Image },
   { href: "/admin/testimonials", label: "Testimonials", icon: Star },
   { href: "/admin/users", label: "Users", icon: Users },
 ];

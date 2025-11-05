@@ -198,40 +198,51 @@ export default function ScheduleMeetingPage() {
           </motion.div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {meetingModes.map((mode, index) => (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: index * 0.1 }}
-              >
-                <Card className={`text-center h-full flex flex-col ${mode.popular ? 'ring-2 ring-[var(--color-accent)]' : ''}`}>
-                  {mode.popular && (
-                    <div className="bg-[var(--color-accent)] text-[var(--color-text)] text-xs font-bold px-3 py-1 rounded-full inline-block mb-4">
-                      MOST POPULAR
+            {meetingModes.map((mode, index) => {
+              // Map meeting mode titles to meeting mode values
+              const modeValueMap: { [key: string]: string } = {
+                "Google Meet": "video",
+                "Phone Call": "phone",
+                "WhatsApp": "whatsapp",
+                "In-Person": "inperson"
+              };
+              
+              return (
+                <motion.div
+                  key={index}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: index * 0.1 }}
+                >
+                  <Card className={`text-center h-full flex flex-col ${mode.popular ? 'ring-2 ring-[var(--color-accent)]' : ''}`}>
+                    {mode.popular && (
+                      <div className="bg-[var(--color-accent)] text-[var(--color-text)] text-xs font-bold px-3 py-1 rounded-full inline-block mb-4">
+                        MOST POPULAR
+                      </div>
+                    )}
+                    <div className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-[var(--color-accent)]/10 mb-4 mx-auto">
+                      <mode.icon className="w-7 h-7 text-[var(--color-accent)]" />
                     </div>
-                  )}
-                  <div className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-[var(--color-accent)]/10 mb-4 mx-auto">
-                    <mode.icon className="w-7 h-7 text-[var(--color-accent)]" />
-                  </div>
-                  <h4 className="font-semibold text-[var(--color-text)] mb-2">
-                    {mode.title}
-                  </h4>
-                  <p className="text-sm text-[var(--color-body)] mb-4 flex-1">
-                    {mode.description}
-                  </p>
-                  <SchedulerButton
-                    variant="outline"
-                    size="sm"
-                    className="w-full"
-                    defaultMeetingType="consultation"
-                  >
-                    Schedule {mode.title.split(' ')[0]}
-                  </SchedulerButton>
-                </Card>
-              </motion.div>
-            ))}
+                    <h4 className="font-semibold text-[var(--color-text)] mb-2">
+                      {mode.title}
+                    </h4>
+                    <p className="text-sm text-[var(--color-body)] mb-4 flex-1">
+                      {mode.description}
+                    </p>
+                    <SchedulerButton
+                      variant="outline"
+                      size="sm"
+                      className="w-full"
+                      defaultMeetingType="consultation"
+                      defaultMeetingMode={modeValueMap[mode.title]}
+                    >
+                      Schedule {mode.title.split(' ')[0]}
+                    </SchedulerButton>
+                  </Card>
+                </motion.div>
+              );
+            })}
           </div>
 
           {/* Additional CTA */}
@@ -240,7 +251,6 @@ export default function ScheduleMeetingPage() {
               Not sure which mode to choose? Start with a consultation
             </p>
             <SchedulerButton size="lg" defaultMeetingType="consultation">
-              <Calendar className="mr-2 w-5 h-5" />
               Schedule General Consultation
             </SchedulerButton>
           </div>

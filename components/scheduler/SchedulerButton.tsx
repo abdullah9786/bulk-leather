@@ -11,6 +11,7 @@ interface SchedulerButtonProps {
   className?: string;
   children?: React.ReactNode;
   defaultMeetingType?: string;
+  defaultMeetingMode?: string;
   fullWidth?: boolean;
 }
 
@@ -20,6 +21,7 @@ export function SchedulerButton({
   className = "",
   children,
   defaultMeetingType,
+  defaultMeetingMode,
   fullWidth = false
 }: SchedulerButtonProps) {
   const [isOpen, setIsOpen] = useState(false);
@@ -39,6 +41,7 @@ export function SchedulerButton({
         isOpen={isOpen} 
         onClose={() => setIsOpen(false)}
         defaultMeetingType={defaultMeetingType}
+        defaultMeetingMode={defaultMeetingMode}
       />
     </>
   );

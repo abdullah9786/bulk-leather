@@ -35,7 +35,7 @@ export function withAuth(
 }
 
 export function withAdminAuth(
-  handler: (req: NextRequest, userId: string) => Promise<NextResponse>
+  handler: (req: NextRequest, context?: any) => Promise<NextResponse>
 ) {
   return withAuth(async (req, userId, userRole) => {
     if (userRole !== "admin") {
@@ -44,7 +44,10 @@ export function withAdminAuth(
         { status: 403 }
       );
     }
-    return handler(req, userId);
+    // Extract context (params) from the original handler if it exists
+    // This allows the handler to receive route params like { params: { id: string } }
+    const context = (req as any).context;
+    return handler(req, context);
   });
 }
 

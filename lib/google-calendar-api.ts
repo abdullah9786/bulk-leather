@@ -14,6 +14,7 @@ interface MeetingDetails {
   timeSlot: string;
   meetingType: string;
   message?: string;
+  timezone?: string;
 }
 
 /**
@@ -51,11 +52,19 @@ function getCalendarClient() {
 /**
  * Create actual Google Calendar event with Meet link
  * Sends automatic email invitations from Google
+ * Handles timezone conversion for user's timezone and Indian timezone for organizer
  */
 export async function createCalendarEventWithMeet(meetingDetails: MeetingDetails) {
   const calendar = getCalendarClient();
 
-  // Parse date and time
+  // Use user's timezone or default to IST
+  const userTimezone = meetingDetails.timezone || 'Asia/Kolkata';
+  const organizerTimezone = 'Asia/Kolkata'; // Indian timezone for organizer
+
+  console.log("🌍 User Timezone:", userTimezone);
+  console.log("🇮🇳 Organizer Timezone:", organizerTimezone);
+
+  // Parse date and time in user's timezone
   const meetingDate = new Date(meetingDetails.date);
   const [time, period] = meetingDetails.timeSlot.split(' ');
   const [hours, minutes] = time.split(':');
@@ -70,6 +79,22 @@ export async function createCalendarEventWithMeet(meetingDetails: MeetingDetails
   meetingDate.setHours(hour, parseInt(minutes), 0, 0);
   const endDate = new Date(meetingDate.getTime() + 30 * 60000); // 30 minutes
 
+  // Format dates in user's timezone for the calendar event
+  const startDateTime = meetingDate.toISOString();
+  const endDateTime = endDate.toISOString();
+
+  // Get human-readable times for both timezones
+  const userTimeStr = meetingDate.toLocaleString('en-US', { 
+    timeZone: userTimezone, 
+    dateStyle: 'full', 
+    timeStyle: 'short' 
+  });
+  const indianTimeStr = meetingDate.toLocaleString('en-US', { 
+    timeZone: organizerTimezone, 
+    dateStyle: 'full', 
+    timeStyle: 'short' 
+  });
+
   const event = {
     summary: `${meetingDetails.meetingType.charAt(0).toUpperCase() + meetingDetails.meetingType.slice(1)} Meeting - ${meetingDetails.company}`,
     description: `Meeting with:
@@ -77,17 +102,22 @@ Name: ${meetingDetails.name}
 Email: ${meetingDetails.email}
 Company: ${meetingDetails.company}
 
+📅 Meeting Times:
+• Client Time (${userTimezone}): ${userTimeStr}
+• India Time (IST): ${indianTimeStr}
+
+📝 Notes:
 ${meetingDetails.message || 'No additional notes'}
 
 Customer will join via the Google Meet link.
 This meeting was scheduled through BulkLeather.`,
     start: {
-      dateTime: meetingDate.toISOString(),
-      timeZone: 'America/New_York',
+      dateTime: startDateTime,
+      timeZone: userTimezone, // User's local timezone
     },
     end: {
-      dateTime: endDate.toISOString(),
-      timeZone: 'America/New_York',
+      dateTime: endDateTime,
+      timeZone: userTimezone, // User's local timezone
     },
     // Don't add attendees to avoid Domain-Wide Delegation requirement
     // We'll send the Meet link to customer via email separately

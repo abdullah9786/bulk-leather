@@ -45,6 +45,8 @@ interface Testimonial {
   company: string;
   role: string;
   content: string;
+  avatar?: string;
+  rating?: number;
 }
 
 export default function HomePage() {
@@ -1051,7 +1053,7 @@ export default function HomePage() {
               <Card key={testimonial._id || testimonial.id}>
                 <div className="mb-4">
                   <div className="flex items-center space-x-1 mb-4">
-                    {[...Array(5)].map((_, i) => (
+                    {[...Array(testimonial.rating || 5)].map((_, i) => (
                       <svg
                         key={i}
                         className="w-5 h-5 fill-current text-[var(--color-accent)]"
@@ -1065,13 +1067,33 @@ export default function HomePage() {
                     "{testimonial.content}"
                   </p>
                 </div>
-                <div className="border-t border-[var(--color-secondary)] pt-4">
-                  <p className="font-semibold text-[var(--color-text)]">
-                    {testimonial.name}
-                  </p>
-                  <p className="text-sm text-[var(--color-body)]">
-                    {testimonial.role}, {testimonial.company}
-                  </p>
+                <div className="border-t border-[var(--color-secondary)] pt-4 flex items-center gap-4">
+                  {/* Avatar */}
+                  <div className="flex-shrink-0">
+                    {testimonial.avatar ? (
+                      <img
+                        src={testimonial.avatar}
+                        alt={testimonial.name}
+                        className="w-12 h-12 rounded-full object-cover"
+                      />
+                    ) : (
+                      <div className="w-12 h-12 rounded-full bg-[var(--color-accent)] flex items-center justify-center">
+                        <span className="text-[var(--color-text)] font-bold text-xl">
+                          {testimonial.name.charAt(0).toUpperCase()}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                  
+                  {/* Info */}
+                  <div className="flex-1">
+                    <p className="font-semibold text-[var(--color-text)]">
+                      {testimonial.name}
+                    </p>
+                    <p className="text-sm text-[var(--color-body)]">
+                      {testimonial.role}, {testimonial.company}
+                    </p>
+                  </div>
                 </div>
               </Card>
             ))}

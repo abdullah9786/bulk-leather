@@ -18,6 +18,8 @@ export const authOptions: NextAuthOptions = {
     }),
   ],
   debug: true, // Enable debug mode to see detailed logs
+  // Ensure correct URL with port for local development
+  url: process.env.NEXTAUTH_URL || "http://localhost:3000",
   callbacks: {
     async signIn({ user, account, profile }) {
       console.log("🔐 Sign in attempt started...");

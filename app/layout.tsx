@@ -3,10 +3,7 @@ import "./globals.css";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 import { CartProvider } from "@/contexts/CartContext";
 import { SessionProvider } from "@/components/providers/SessionProvider";
-import { Header } from "@/components/layout/Header";
-import { Footer } from "@/components/layout/Footer";
-import { CartDrawer } from "@/components/cart/CartDrawer";
-import { FloatingScheduler } from "@/components/scheduler/FloatingScheduler";
+import { ConditionalLayout } from "@/components/layout/ConditionalLayout";
 
 export const metadata: Metadata = {
   title: "BulkLeather - Premium Wholesale Leather Goods",
@@ -25,13 +22,9 @@ export default function RootLayout({
         <SessionProvider>
           <ThemeProvider>
             <CartProvider>
-              <Header />
-              <main className="min-h-screen">
+              <ConditionalLayout>
                 {children}
-              </main>
-              <Footer />
-              <CartDrawer />
-              <FloatingScheduler />
+              </ConditionalLayout>
             </CartProvider>
           </ThemeProvider>
         </SessionProvider>

@@ -27,9 +27,15 @@ interface SchedulerModalProps {
   isOpen: boolean;
   onClose: () => void;
   defaultMeetingType?: string;
+  defaultMeetingMode?: string;
 }
 
-export function SchedulerModal({ isOpen, onClose, defaultMeetingType = "consultation" }: SchedulerModalProps) {
+export function SchedulerModal({ 
+  isOpen, 
+  onClose, 
+  defaultMeetingType = "consultation",
+  defaultMeetingMode = "video"
+}: SchedulerModalProps) {
   const { cartItems } = useCart();
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState({
@@ -38,13 +44,49 @@ export function SchedulerModal({ isOpen, onClose, defaultMeetingType = "consulta
     company: "",
     phone: "",
     meetingType: defaultMeetingType,
-    meetingMode: "video",
+    meetingMode: defaultMeetingMode,
     date: "",
     timeSlot: "",
     message: "",
+    timezone: "",
   });
   const [submitted, setSubmitted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [userTimezone, setUserTimezone] = useState("");
+  const [timezoneAbbr, setTimezoneAbbr] = useState("");
+
+  // Detect user's timezone and reset form when modal opens
+  useEffect(() => {
+    if (isOpen) {
+      const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+      const now = new Date();
+      const abbr = now.toLocaleTimeString('en-US', { timeZoneName: 'short' }).split(' ')[2];
+      
+      setUserTimezone(timezone);
+      setTimezoneAbbr(abbr);
+      
+      // Reset form with default values when modal opens
+      setFormData({
+        name: "",
+        email: "",
+        company: "",
+        phone: "",
+        meetingType: defaultMeetingType,
+        meetingMode: defaultMeetingMode,
+        date: "",
+        timeSlot: "",
+        message: "",
+        timezone,
+      });
+      
+      setStep(1);
+      setSubmitted(false);
+      
+      console.log("🌍 User timezone detected:", timezone);
+      console.log("🕐 Timezone abbreviation:", abbr);
+      console.log("📝 Default meeting mode:", defaultMeetingMode);
+    }
+  }, [isOpen, defaultMeetingType, defaultMeetingMode]);
 
   const meetingTypes = [
     { value: "consultation", label: "General Consultation" },
@@ -101,6 +143,28 @@ export function SchedulerModal({ isOpen, onClose, defaultMeetingType = "consulta
     "12:00 PM", "12:30 PM", "01:00 PM", "01:30 PM", "02:00 PM", "02:30 PM",
     "03:00 PM", "03:30 PM", "04:00 PM", "04:30 PM", "05:00 PM", "05:30 PM"
   ];
+
+  // Helper to display timezone info
+  const getTimezoneDisplay = () => {
+    if (!userTimezone) return "";
+    
+    // Map timezone to common abbreviations
+    const timezoneMap: { [key: string]: string } = {
+      "America/New_York": "EST/EDT",
+      "America/Chicago": "CST/CDT",
+      "America/Denver": "MST/MDT",
+      "America/Los_Angeles": "PST/PDT",
+      "America/Phoenix": "MST",
+      "Europe/London": "GMT/BST",
+      "Europe/Paris": "CET/CEST",
+      "Asia/Kolkata": "IST",
+      "Asia/Dubai": "GST",
+      "Australia/Sydney": "AEDT/AEST",
+    };
+
+    const displayName = timezoneMap[userTimezone] || timezoneAbbr || userTimezone;
+    return displayName;
+  };
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
@@ -436,6 +500,21 @@ export function SchedulerModal({ isOpen, onClose, defaultMeetingType = "consulta
                     exit={{ opacity: 0, x: -20 }}
                     className="space-y-6"
                   >
+                    {/* Timezone Display */}
+                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                      <div className="flex items-center gap-3">
+                        <Clock className="w-5 h-5 text-blue-600" />
+                        <div>
+                          <p className="text-sm font-medium text-blue-900">
+                            Your Timezone: {getTimezoneDisplay()}
+                          </p>
+                          <p className="text-xs text-blue-700 mt-1">
+                            {userTimezone} • All times shown in your local timezone
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+
                     <div>
                       <h3 className="text-xl font-semibold text-[var(--color-text)] mb-4">
                         Select Your Preferred Date

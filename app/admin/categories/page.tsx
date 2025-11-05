@@ -28,6 +28,8 @@ export default function AdminCategoriesPage() {
   const [modalOpen, setModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState<"add" | "edit">("add");
   const [selectedCategory, setSelectedCategory] = useState<Category | undefined>(undefined);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState<"all" | "active" | "inactive">("all");
 
   useEffect(() => {
     fetchCategories();
@@ -78,18 +80,126 @@ export default function AdminCategoriesPage() {
     setModalOpen(true);
   };
 
+  // Filter categories based on search and status
+  const filteredCategories = categories.filter((category) => {
+    const matchesSearch = 
+      category.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      category.slug.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      category.description.toLowerCase().includes(searchQuery.toLowerCase());
+    
+    const matchesStatus = 
+      statusFilter === "all" ||
+      (statusFilter === "active" && category.isActive) ||
+      (statusFilter === "inactive" && !category.isActive);
+
+    return matchesSearch && matchesStatus;
+  });
+
   return (
     <div>
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-8">
         <div>
           <h1 className="text-3xl font-bold text-gray-900 mb-2">Categories</h1>
-          <p className="text-gray-500">Manage product categories</p>
+          <p className="text-gray-500">
+            Manage product categories ({categories.length} total)
+          </p>
         </div>
         <Button className="mt-4 md:mt-0" onClick={handleAddNew}>
           <Plus className="mr-2 w-5 h-5" />
           Add New Category
         </Button>
+      </div>
+
+      {/* Stats Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div className="bg-white rounded-xl p-6 border border-gray-200">
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 rounded-lg bg-blue-100 flex items-center justify-center">
+              <Eye className="w-6 h-6 text-blue-600" />
+            </div>
+            <div>
+              <p className="text-sm text-gray-600">Total Categories</p>
+              <p className="text-2xl font-bold text-gray-900">{categories.length}</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white rounded-xl p-6 border border-gray-200">
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 rounded-lg bg-green-100 flex items-center justify-center">
+              <Eye className="w-6 h-6 text-green-600" />
+            </div>
+            <div>
+              <p className="text-sm text-gray-600">Active</p>
+              <p className="text-2xl font-bold text-gray-900">
+                {categories.filter(c => c.isActive).length}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white rounded-xl p-6 border border-gray-200">
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 rounded-lg bg-gray-100 flex items-center justify-center">
+              <EyeOff className="w-6 h-6 text-gray-600" />
+            </div>
+            <div>
+              <p className="text-sm text-gray-600">Inactive</p>
+              <p className="text-2xl font-bold text-gray-900">
+                {categories.filter(c => !c.isActive).length}
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Filters */}
+      <div className="bg-white rounded-xl p-6 border border-gray-200 mb-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {/* Search */}
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+            <input
+              type="text"
+              placeholder="Search categories..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+            />
+          </div>
+
+          {/* Status Filter */}
+          <div>
+            <select
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value as "all" | "active" | "inactive")}
+              className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+            >
+              <option value="all">All Categories ({categories.length})</option>
+              <option value="active">Active Only ({categories.filter(c => c.isActive).length})</option>
+              <option value="inactive">Inactive Only ({categories.filter(c => !c.isActive).length})</option>
+            </select>
+          </div>
+        </div>
+
+        {/* Filter Summary */}
+        {(searchQuery || statusFilter !== "all") && (
+          <div className="mt-4 flex items-center justify-between">
+            <p className="text-sm text-gray-600">
+              Showing {filteredCategories.length} of {categories.length} categories
+            </p>
+            <button
+              onClick={() => {
+                setSearchQuery("");
+                setStatusFilter("all");
+              }}
+              className="text-sm text-amber-600 hover:text-amber-700 font-medium"
+            >
+              Clear Filters
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Categories Grid */}
@@ -98,12 +208,28 @@ export default function AdminCategoriesPage() {
           <div className="col-span-full flex justify-center py-12">
             <div className="w-12 h-12 border-4 border-amber-600 border-t-transparent rounded-full animate-spin" />
           </div>
-        ) : categories.length === 0 ? (
-          <div className="col-span-full text-center py-12 text-gray-500">
-            No categories found
+        ) : filteredCategories.length === 0 ? (
+          <div className="col-span-full bg-white rounded-xl p-12 text-center border border-gray-200">
+            <div className="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-4">
+              <Search className="w-8 h-8 text-gray-400" />
+            </div>
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">
+              {categories.length === 0 ? "No categories yet" : "No categories found"}
+            </h3>
+            <p className="text-gray-600 mb-6">
+              {categories.length === 0 
+                ? "Get started by adding your first category"
+                : "Try adjusting your search or filters"}
+            </p>
+            {categories.length === 0 && (
+              <Button onClick={handleAddNew}>
+                <Plus className="w-5 h-5 mr-2" />
+                Add First Category
+              </Button>
+            )}
           </div>
         ) : (
-          categories.map((category) => (
+          filteredCategories.map((category) => (
             <div
               key={category._id}
               className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow"

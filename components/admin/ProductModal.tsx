@@ -24,6 +24,7 @@ export function ProductModal({ isOpen, onClose, onSuccess, product, mode }: Prod
     images: "",
     moq: "",
     priceRange: "",
+    samplePrice: "",
     features: "",
     colors: "",
     sizes: "",
@@ -41,6 +42,7 @@ export function ProductModal({ isOpen, onClose, onSuccess, product, mode }: Prod
         images: product.images?.join("\n") || "",
         moq: product.moq?.toString() || "",
         priceRange: product.priceRange || "",
+        samplePrice: product.samplePrice?.toString() || "",
         features: product.features?.join("\n") || "",
         colors: product.colors?.join(", ") || "",
         sizes: product.sizes?.join(", ") || "",
@@ -63,11 +65,15 @@ export function ProductModal({ isOpen, onClose, onSuccess, product, mode }: Prod
         images: formData.images.split("\n").map(img => img.trim()).filter(Boolean),
         moq: parseInt(formData.moq),
         priceRange: formData.priceRange,
+        samplePrice: formData.samplePrice ? parseFloat(formData.samplePrice) : 0,
         features: formData.features.split("\n").map(f => f.trim()).filter(Boolean),
         colors: formData.colors.split(",").map(c => c.trim()).filter(Boolean),
         sizes: formData.sizes ? formData.sizes.split(",").map(s => s.trim()).filter(Boolean) : undefined,
         isActive: formData.isActive,
       };
+      
+      console.log("📤 Sending product data:", productData);
+      console.log("💰 Sample Price being sent:", productData.samplePrice);
 
       const url = mode === "edit" ? `/api/products/${product._id}` : "/api/products";
       const method = mode === "edit" ? "PUT" : "POST";
@@ -81,13 +87,16 @@ export function ProductModal({ isOpen, onClose, onSuccess, product, mode }: Prod
         body: JSON.stringify(productData),
       });
 
+      const responseData = await response.json();
+      console.log("📥 API Response:", responseData);
+      console.log("💰 Sample Price in response:", responseData.data?.samplePrice);
+
       if (response.ok) {
         onSuccess();
         onClose();
         resetForm();
       } else {
-        const error = await response.json();
-        alert(`Error: ${error.error || "Failed to save product"}`);
+        alert(`Error: ${responseData.error || "Failed to save product"}`);
       }
     } catch (error) {
       console.error("Error saving product:", error);
@@ -106,6 +115,7 @@ export function ProductModal({ isOpen, onClose, onSuccess, product, mode }: Prod
       images: "",
       moq: "",
       priceRange: "",
+      samplePrice: "",
       features: "",
       colors: "",
       sizes: "",
@@ -173,6 +183,13 @@ export function ProductModal({ isOpen, onClose, onSuccess, product, mode }: Prod
               onChange={(e) => setFormData({ ...formData, priceRange: e.target.value })}
               required
               placeholder="$85 - $120"
+            />
+            <Input
+              label="Sample Price"
+              type="number"
+              value={formData.samplePrice}
+              onChange={(e) => setFormData({ ...formData, samplePrice: e.target.value })}
+              placeholder="25.00"
             />
           </div>
 

@@ -10,6 +10,7 @@ export interface IOrder {
     productName: string;
     quantity: number;
     productImage: string;
+    samplePrice?: number; // Sample price per unit
   }>;
   shippingAddress: {
     fullName: string;
@@ -24,6 +25,9 @@ export interface IOrder {
   paymentStatus: "pending" | "paid" | "failed";
   orderStatus: "pending" | "confirmed" | "processing" | "shipped" | "delivered" | "cancelled";
   totalItems: number;
+  subtotal: number; // Subtotal before discount
+  discount: number; // Discount amount
+  totalAmount: number; // Final amount after discount
   notes?: string;
   advancePaymentLink?: string;
   specialOffer?: string;
@@ -62,6 +66,11 @@ const OrderSchema = new Schema<IOrder>(
       productImage: {
         type: String,
         required: true,
+      },
+      samplePrice: {
+        type: Number,
+        min: 0,
+        default: 0,
       },
     }],
     shippingAddress: {
@@ -113,6 +122,20 @@ const OrderSchema = new Schema<IOrder>(
     totalItems: {
       type: Number,
       required: true,
+    },
+    subtotal: {
+      type: Number,
+      required: true,
+      default: 0,
+    },
+    discount: {
+      type: Number,
+      default: 0,
+    },
+    totalAmount: {
+      type: Number,
+      required: true,
+      default: 0,
     },
     notes: {
       type: String,

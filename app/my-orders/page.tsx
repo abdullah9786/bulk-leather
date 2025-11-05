@@ -146,7 +146,15 @@ export default function MyOrdersPage() {
                               </p>
                               <p className="text-xs text-[var(--color-body)]">
                                 Quantity: {item.quantity}
+                                {item.samplePrice && item.samplePrice > 0 && (
+                                  <span> × ${item.samplePrice}</span>
+                                )}
                               </p>
+                              {item.samplePrice && item.samplePrice > 0 && (
+                                <p className="text-sm font-semibold text-[var(--color-accent)] mt-1">
+                                  ${(item.samplePrice * item.quantity).toFixed(2)}
+                                </p>
+                              )}
                             </div>
                           </div>
                         ))}
@@ -178,6 +186,30 @@ export default function MyOrdersPage() {
                             {order.totalItems}
                           </span>
                         </div>
+                        {order.subtotal > 0 && (
+                          <>
+                            <div className="flex items-center justify-between">
+                              <span className="text-sm text-[var(--color-body)]">Subtotal:</span>
+                              <span className="font-semibold text-[var(--color-text)]">
+                                ${order.subtotal.toFixed(2)}
+                              </span>
+                            </div>
+                            {order.discount > 0 && (
+                              <div className="flex items-center justify-between text-green-600">
+                                <span className="text-xs">Discount:</span>
+                                <span className="font-semibold">
+                                  -${order.discount.toFixed(2)}
+                                </span>
+                              </div>
+                            )}
+                            <div className="flex items-center justify-between pt-2 border-t border-[var(--color-secondary)]">
+                              <span className="text-sm font-bold text-[var(--color-text)]">Total Amount:</span>
+                              <span className="text-lg font-bold text-[var(--color-accent)]">
+                                ${order.totalAmount.toFixed(2)}
+                              </span>
+                            </div>
+                          </>
+                        )}
                         <div className="flex items-center justify-between">
                           <span className="text-sm text-[var(--color-body)]">Payment:</span>
                           <span className="font-semibold text-[var(--color-text)] capitalize">

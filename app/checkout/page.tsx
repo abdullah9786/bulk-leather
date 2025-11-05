@@ -27,6 +27,8 @@ export default function CheckoutPage() {
   const [loading, setLoading] = useState(false);
   const [orderPlaced, setOrderPlaced] = useState(false);
   const [orderData, setOrderData] = useState<any>(null);
+  const [refreshedCartItems, setRefreshedCartItems] = useState<any[]>([]);
+  const [isRefreshing, setIsRefreshing] = useState(true);
 
   const [formData, setFormData] = useState({
     fullName: "",
@@ -55,7 +57,7 @@ export default function CheckoutPage() {
       console.log("✅ Pre-filling name from session:", session.user.name);
       setFormData((prev) => ({
         ...prev,
-        fullName: prev.fullName || session.user.name || "",
+        fullName: prev.fullName || session.user?.name || "",
       }));
     }
   }, [status, session, router]);
@@ -66,6 +68,67 @@ export default function CheckoutPage() {
       router.push("/products");
     }
   }, [cartItems, loading, orderPlaced, router]);
+
+  // Refresh cart items with latest product data on mount
+  useEffect(() => {
+    const refreshCartData = async () => {
+      if (cartItems.length === 0) {
+        setIsRefreshing(false);
+        return;
+      }
+
+      console.log("🔄 Refreshing cart items with latest product data...");
+      console.log("Current cart items:", cartItems);
+      
+      setIsRefreshing(true);
+      
+      const refreshedItems = await Promise.all(
+        cartItems.map(async (item) => {
+          try {
+            const productId = (item.product as any)._id || item.product.id;
+            console.log("📡 Fetching product ID:", productId);
+            
+            const response = await fetch(`/api/products/${productId}`);
+            const data = await response.json();
+            
+            console.log("📦 API Response for", productId, ":", data);
+            
+            if (data.success && data.data) {
+              console.log("✅ Product refreshed:", {
+                name: data.data.name,
+                samplePrice: data.data.samplePrice,
+                quantity: item.quantity,
+                _id: data.data._id
+              });
+              return {
+                id: (data.data as any)._id || data.data.id || item.id,
+                product: data.data, // Fresh product data with latest prices
+                quantity: item.quantity
+              };
+            } else {
+              console.warn("⚠️ No product data returned for:", productId);
+            }
+          } catch (error) {
+            console.error("❌ Error refreshing product:", error);
+          }
+          return item;
+        })
+      );
+      
+      console.log("✅ Cart items refreshed. Final items:", refreshedItems);
+      console.log("📊 Sample prices:", refreshedItems.map(i => ({
+        name: i.product.name,
+        price: i.product.samplePrice,
+        quantity: i.quantity,
+        total: (i.product.samplePrice || 0) * i.quantity
+      })));
+      
+      setRefreshedCartItems(refreshedItems);
+      setIsRefreshing(false);
+    };
+
+    refreshCartData();
+  }, [cartItems]);
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -79,12 +142,27 @@ export default function CheckoutPage() {
     setLoading(true);
 
     try {
+      // Use refreshed cart items for calculations
+      const itemsToUse = refreshedCartItems.length > 0 ? refreshedCartItems : cartItems;
+      
+      // Calculate totals
+      const subtotal = itemsToUse.reduce((sum, item) => {
+        const price = item.product.samplePrice || 0;
+        console.log("Calculating:", item.product.name, "price:", price, "qty:", item.quantity);
+        return sum + (price * item.quantity);
+      }, 0);
+      const discount = formData.paymentMethod === "advance" ? subtotal * 0.1 : 0;
+      const totalAmount = subtotal - discount;
+      
+      console.log("💰 Order totals:", { subtotal, discount, totalAmount });
+
       const orderPayload = {
-        items: cartItems.map((item) => ({
+        items: itemsToUse.map((item) => ({
           productId: (item.product as any)._id || item.product.id,
           productName: item.product.name,
           quantity: item.quantity,
           productImage: item.product.images[0],
+          samplePrice: item.product.samplePrice || 0,
         })),
         shippingAddress: {
           fullName: formData.fullName,
@@ -96,6 +174,9 @@ export default function CheckoutPage() {
           postalCode: formData.postalCode,
         },
         paymentMethod: formData.paymentMethod,
+        subtotal,
+        discount,
+        totalAmount,
         notes: formData.notes,
       };
 
@@ -448,45 +529,110 @@ export default function CheckoutPage() {
                 </h2>
 
                 <div className="space-y-4 mb-6">
-                  {cartItems.map((item) => (
-                    <div
-                      key={item.id}
-                      className="flex gap-3 pb-4 border-b border-[var(--color-secondary)]"
-                    >
-                      <div className="relative w-16 h-16 rounded-lg overflow-hidden flex-shrink-0">
-                        <Image
-                          src={item.product.images[0]}
-                          alt={item.product.name}
-                          fill
-                          className="object-cover"
-                        />
+                  {(refreshedCartItems.length > 0 ? refreshedCartItems : cartItems).map((item) => {
+                    const samplePrice = item.product.samplePrice || 0;
+                    const itemTotal = samplePrice * item.quantity;
+                    
+                    // Debug logging
+                    console.log("Cart item:", {
+                      name: item.product.name,
+                      samplePrice: item.product.samplePrice,
+                      quantity: item.quantity,
+                      itemTotal,
+                    });
+                    
+                    return (
+                      <div
+                        key={item.id}
+                        className="flex gap-3 pb-4 border-b border-[var(--color-secondary)]"
+                      >
+                        <div className="relative w-16 h-16 rounded-lg overflow-hidden flex-shrink-0">
+                          <Image
+                            src={item.product.images[0]}
+                            alt={item.product.name}
+                            fill
+                            className="object-cover"
+                          />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="font-semibold text-[var(--color-text)] text-sm truncate">
+                            {item.product.name}
+                          </p>
+                          <p className="text-xs text-[var(--color-body)]">
+                            Qty: {item.quantity} × ${samplePrice}
+                          </p>
+                          {itemTotal > 0 && (
+                            <p className="text-sm font-semibold text-[var(--color-accent)] mt-1">
+                              ${itemTotal.toFixed(2)}
+                            </p>
+                          )}
+                        </div>
                       </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="font-semibold text-[var(--color-text)] text-sm truncate">
-                          {item.product.name}
-                        </p>
-                        <p className="text-xs text-[var(--color-body)]">
-                          Qty: {item.quantity}
-                        </p>
-                        <p className="text-xs text-[var(--color-body)] mt-1">
-                          Sample Request
-                        </p>
-                      </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
 
-                <div className="border-t border-[var(--color-secondary)] pt-4 mb-6">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-[var(--color-body)]">Total Samples:</span>
-                    <span className="font-bold text-[var(--color-text)]">
-                      {cartItems.reduce((sum, item) => sum + item.quantity, 0)} items
-                    </span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-[var(--color-body)]">Payment:</span>
-                    <span className="font-bold text-[var(--color-text)] capitalize">
-                      {formData.paymentMethod === "cod" ? "COD" : "Advance (10% OFF)"}
+                <div className="border-t border-[var(--color-secondary)] pt-4 mb-6 space-y-3">
+                  {isRefreshing ? (
+                    <div className="text-center py-4">
+                      <p className="text-sm text-[var(--color-body)]">Loading prices...</p>
+                    </div>
+                  ) : (() => {
+                    const itemsToUse = refreshedCartItems.length > 0 ? refreshedCartItems : cartItems;
+                    
+                    console.log("💰 Calculating totals with items:", itemsToUse.map(i => ({
+                      name: i.product.name,
+                      samplePrice: i.product.samplePrice,
+                      quantity: i.quantity,
+                      itemTotal: (i.product.samplePrice || 0) * i.quantity
+                    })));
+                    
+                    const subtotal = itemsToUse.reduce((sum, item) => {
+                      const price = item.product.samplePrice || 0;
+                      console.log(`  ${item.product.name}: $${price} × ${item.quantity} = $${price * item.quantity}`);
+                      return sum + (price * item.quantity);
+                    }, 0);
+                    
+                    const discount = formData.paymentMethod === "advance" ? subtotal * 0.1 : 0;
+                    const totalAmount = subtotal - discount;
+                    
+                    console.log("💵 Final totals:", { subtotal, discount, totalAmount });
+                    
+                    return (
+                      <>
+                        <div className="flex items-center justify-between">
+                          <span className="text-[var(--color-body)]">Total Samples:</span>
+                          <span className="font-bold text-[var(--color-text)]">
+                            {itemsToUse.reduce((sum, item) => sum + item.quantity, 0)} items
+                          </span>
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <span className="text-[var(--color-body)]">Subtotal:</span>
+                          <span className="font-bold text-[var(--color-text)]">
+                            ${subtotal.toFixed(2)}
+                          </span>
+                        </div>
+                        {formData.paymentMethod === "advance" && (
+                          <div className="flex items-center justify-between text-green-600">
+                            <span className="text-sm">Advance Payment Discount (10%):</span>
+                            <span className="font-semibold">
+                              -${discount.toFixed(2)}
+                            </span>
+                          </div>
+                        )}
+                        <div className="flex items-center justify-between pt-3 border-t border-[var(--color-secondary)]">
+                          <span className="text-lg font-bold text-[var(--color-text)]">Total Amount:</span>
+                          <span className="text-2xl font-bold text-[var(--color-accent)]">
+                            ${totalAmount.toFixed(2)}
+                          </span>
+                        </div>
+                      </>
+                    );
+                  })()}
+                  <div className="flex items-center justify-between pt-2">
+                    <span className="text-sm text-[var(--color-body)]">Payment Method:</span>
+                    <span className="font-semibold text-[var(--color-text)] capitalize">
+                      {formData.paymentMethod === "cod" ? "Cash on Delivery" : "Advance (10% OFF)"}
                     </span>
                   </div>
                 </div>

@@ -9,6 +9,7 @@ export interface IProduct {
   images: string[];
   moq: number;
   priceRange: string;
+  samplePrice?: number; // Price for sample requests
   features: string[];
   colors: string[];
   sizes?: string[];
@@ -55,6 +56,11 @@ const ProductSchema = new Schema<IProduct>(
     priceRange: {
       type: String,
       required: [true, "Price range is required"],
+    },
+    samplePrice: {
+      type: Number,
+      min: 0,
+      default: 0,
     },
     features: {
       type: [String],

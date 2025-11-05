@@ -58,9 +58,10 @@ export function CartProvider({ children }: { children: ReactNode }) {
       console.log("Cart sync response:", data);
       
       if (data.success && data.data.length > 0) {
-        // Use database cart if exists
+        // Use database cart if exists and refresh product data
         console.log("✅ Using cart from database:", data.data.length, "items");
-        setCartItems(data.data);
+        const refreshedCart = await refreshProductData(data.data);
+        setCartItems(refreshedCart);
         localStorage.removeItem("bulk-leather-cart");
       } else {
         // Sync localStorage cart to database
@@ -68,11 +69,13 @@ export function CartProvider({ children }: { children: ReactNode }) {
         if (localCart) {
           const cartData = JSON.parse(localCart);
           console.log("📤 Syncing localStorage cart to database:", cartData.length, "items");
+          const refreshedCart = await refreshProductData(cartData);
           await fetch("/api/cart", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ cart: cartData }),
+            body: JSON.stringify({ cart: refreshedCart }),
           });
+          setCartItems(refreshedCart);
           console.log("✅ Cart synced to database");
           localStorage.removeItem("bulk-leather-cart");
         } else {
@@ -82,6 +85,34 @@ export function CartProvider({ children }: { children: ReactNode }) {
     } catch (error) {
       console.error("❌ Error syncing cart:", error);
     }
+  };
+
+  const refreshProductData = async (cartItems: any[]) => {
+    // Refresh product data to get latest prices and details
+    const refreshedItems = await Promise.all(
+      cartItems.map(async (item) => {
+        try {
+          const productId = (item.product as any)._id || item.product.id || item.id;
+          const response = await fetch(`/api/products/${productId}`);
+          const data = await response.json();
+          
+          if (data.success && data.data) {
+            // Use fresh product data with the existing quantity
+            return {
+              id: (data.data as any)._id || data.data.id,
+              product: data.data,
+              quantity: item.quantity
+            };
+          }
+        } catch (error) {
+          console.error("Error refreshing product:", error);
+        }
+        // Return original item if refresh fails
+        return item;
+      })
+    );
+    
+    return refreshedItems;
   };
 
   const syncWithDatabase = async () => {
@@ -112,19 +143,25 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   const addToCart = (product: Product, quantity: number = 1) => {
     setCartItems((prevItems) => {
+      // Use _id or id for comparison (MongoDB uses _id)
+      const productId = (product as any)._id || product.id;
       const existingItem = prevItems.find(
-        (item) => item.product.id === product.id
+        (item) => {
+          const itemProductId = (item.product as any)._id || item.product.id;
+          return itemProductId === productId;
+        }
       );
 
       if (existingItem) {
-        return prevItems.map((item) =>
-          item.product.id === product.id
+        return prevItems.map((item) => {
+          const itemProductId = (item.product as any)._id || item.product.id;
+          return itemProductId === productId
             ? { ...item, quantity: item.quantity + quantity }
-            : item
-        );
+            : item;
+        });
       }
 
-      return [...prevItems, { id: product.id, product, quantity }];
+      return [...prevItems, { id: productId, product, quantity }];
     });
     setIsCartOpen(true);
   };

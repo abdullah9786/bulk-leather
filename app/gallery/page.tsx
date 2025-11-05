@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
+import Image from "next/image";
 import { 
   Image as ImageIcon, 
   Video, 
@@ -106,16 +107,35 @@ export default function GalleryPage() {
   return (
     <div className="min-h-screen bg-[var(--color-bg)]">
       {/* Hero Section */}
-      <div className="bg-gradient-to-br from-[var(--color-accent)] to-[var(--color-accent-hover)] text-white py-16 md:py-24">
-        <div className="container mx-auto px-4">
+      <div 
+        className="relative text-white py-16 md:py-24 overflow-hidden"
+        style={{
+          backgroundImage: 'url("https://plus.unsplash.com/premium_photo-1706548911842-7162d4bd2c98?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NXx8Z2FsbGVyeXxlbnwwfHwwfHx8MA%3D%3D&auto=format&fit=crop&q=60&w=900")',
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+        }}
+      >
+        {/* Dark overlay for better text contrast */}
+        <div className="absolute inset-0 bg-black/40" />
+        
+        {/* Theme-adaptive gradient overlay */}
+        <div className="absolute inset-0 bg-gradient-to-br from-[var(--color-accent)]/70 via-[var(--color-accent-hover)]/60 to-[var(--color-accent)]/70" />
+        
+        {/* Bottom fade overlay */}
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/30" />
+        
+        <div className="container mx-auto px-4 relative z-10">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
             className="text-center"
           >
-            <h1 className="text-4xl md:text-6xl font-bold mb-4">Our Gallery</h1>
-            <p className="text-xl md:text-2xl text-white/90 max-w-3xl mx-auto">
+            <h1 className="text-4xl md:text-6xl font-bold mb-4 drop-shadow-lg">
+              <span className="text-[var(--color-text)]">Our</span>{" "}
+              <span className="text-[var(--color-accent)]">Gallery</span>
+            </h1>
+            <p className="text-xl md:text-2xl text-white/95 max-w-3xl mx-auto drop-shadow-md">
               Explore our state-of-the-art factory, skilled craftsmen, and premium leather manufacturing process
             </p>
           </motion.div>

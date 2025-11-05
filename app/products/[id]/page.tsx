@@ -231,11 +231,25 @@ export default function ProductDetailPage() {
               {product.description}
             </p>
 
-            <div className="flex items-baseline gap-4 mb-8">
-              <div className="text-3xl font-bold text-[var(--color-text)]">
-                {product.priceRange}
+            <div className="mb-8 space-y-4">
+              <div className="flex items-baseline gap-4">
+                <div className="text-3xl font-bold text-[var(--color-text)]">
+                  {product.priceRange}
+                </div>
+                <div className="text-sm text-[var(--color-body)]">per unit</div>
               </div>
-              <div className="text-sm text-[var(--color-body)]">per unit</div>
+              
+              {product.samplePrice && product.samplePrice > 0 && (
+                <div className="flex items-center gap-3 bg-[var(--color-accent)]/10 border border-[var(--color-accent)]/30 rounded-lg p-4">
+                  <Sparkles className="w-5 h-5 text-[var(--color-accent)]" />
+                  <div>
+                    <p className="text-sm text-[var(--color-body)] mb-1">Sample Request Price</p>
+                    <p className="text-2xl font-bold text-[var(--color-accent)]">
+                      ${product.samplePrice}
+                    </p>
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* MOQ Badge */}

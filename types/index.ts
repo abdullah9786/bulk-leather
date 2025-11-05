@@ -2,6 +2,7 @@ export type ThemeType = "luxurySand" | "darkElegance" | "warmEarth";
 
 export interface Product {
   id: string;
+  _id?: string; // MongoDB ID
   name: string;
   category: string;
   description: string;
@@ -9,9 +10,13 @@ export interface Product {
   images: string[];
   moq: number; // Minimum Order Quantity
   priceRange: string;
+  samplePrice?: number; // Price for sample requests
   features: string[];
   colors: string[];
   sizes?: string[];
+  isActive?: boolean;
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
 export interface Category {

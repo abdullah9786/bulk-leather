@@ -768,7 +768,7 @@ export default function HomePage() {
                     </p>
                   </div>
                 </div>
-                <div className="relative h-48 rounded-2xl overflow-hidden">
+                <div className="relative h-64 rounded-2xl overflow-hidden">
                   <Image
                     src="https://images.unsplash.com/photo-1600009723489-027195d6b3d3?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=3500"
                     alt="Branded Packaging"
@@ -783,7 +783,7 @@ export default function HomePage() {
                 </div>
               </div>
               <div className="space-y-4 pt-8">
-                <div className="relative h-48 rounded-2xl overflow-hidden">
+                <div className="relative h-64 rounded-2xl overflow-hidden">
                   <Image
                     src="https://images.unsplash.com/photo-1502691876148-a84978e59af8?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=2370"
                     alt="Color Options"

@@ -12,6 +12,7 @@ const productSchema = z.object({
   images: z.array(z.string()).min(1),
   moq: z.number().min(1),
   priceRange: z.string(),
+  samplePrice: z.number().min(0).optional(),
   features: z.array(z.string()),
   colors: z.array(z.string()),
   sizes: z.array(z.string()).optional(),

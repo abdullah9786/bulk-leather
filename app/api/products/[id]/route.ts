@@ -12,6 +12,7 @@ const productUpdateSchema = z.object({
   images: z.array(z.string()).min(1).optional(),
   moq: z.number().min(1).optional(),
   priceRange: z.string().optional(),
+  samplePrice: z.number().min(0).optional(),
   features: z.array(z.string()).optional(),
   colors: z.array(z.string()).optional(),
   sizes: z.array(z.string()).optional(),
@@ -60,11 +61,16 @@ export const PUT = withAdminAuth(async (
     const id = url.pathname.split('/').pop();
 
     const body = await req.json();
+    console.log("📥 Update request body:", body);
+    console.log("💰 SamplePrice in request:", body.samplePrice);
+    
     const validatedData = productUpdateSchema.parse(body);
+    console.log("✅ Validated data:", validatedData);
+    console.log("💰 SamplePrice after validation:", validatedData.samplePrice);
 
     const product = await Product.findByIdAndUpdate(
       id,
-      validatedData,
+      { $set: validatedData },
       { new: true, runValidators: true }
     );
 
@@ -74,6 +80,14 @@ export const PUT = withAdminAuth(async (
         { status: 404 }
       );
     }
+
+    console.log("📦 Updated product from DB:", product);
+    console.log("💰 SamplePrice in response:", product.samplePrice);
+    console.log("📋 Full product object:", JSON.stringify(product, null, 2));
+    
+    // Double-check what's actually in the database
+    const verifyProduct = await Product.findById(id);
+    console.log("🔍 Verification query - samplePrice:", verifyProduct?.samplePrice);
 
     return NextResponse.json({
       success: true,

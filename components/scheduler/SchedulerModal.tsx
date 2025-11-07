@@ -222,6 +222,7 @@ export function SchedulerModal({
       date: "",
       timeSlot: "",
       message: "",
+      timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
     });
     setStep(1);
     setSubmitted(false);

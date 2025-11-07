@@ -15,12 +15,16 @@ interface Order {
     productName: string;
     quantity: number;
     productImage: string;
+    samplePrice?: number;
   }>;
   shippingAddress: any;
   paymentMethod: string;
   paymentStatus: string;
   orderStatus: string;
   totalItems: number;
+  subtotal?: number;
+  discount?: number;
+  totalAmount?: number;
   specialOffer?: string;
   createdAt: string;
 }
@@ -186,7 +190,7 @@ export default function MyOrdersPage() {
                             {order.totalItems}
                           </span>
                         </div>
-                        {order.subtotal > 0 && (
+                          {order.subtotal && order.subtotal > 0 && (
                           <>
                             <div className="flex items-center justify-between">
                               <span className="text-sm text-[var(--color-body)]">Subtotal:</span>
@@ -194,7 +198,7 @@ export default function MyOrdersPage() {
                                 ${order.subtotal.toFixed(2)}
                               </span>
                             </div>
-                            {order.discount > 0 && (
+                            {order.discount && order.discount > 0 && (
                               <div className="flex items-center justify-between text-green-600">
                                 <span className="text-xs">Discount:</span>
                                 <span className="font-semibold">
@@ -205,7 +209,7 @@ export default function MyOrdersPage() {
                             <div className="flex items-center justify-between pt-2 border-t border-[var(--color-secondary)]">
                               <span className="text-sm font-bold text-[var(--color-text)]">Total Amount:</span>
                               <span className="text-lg font-bold text-[var(--color-accent)]">
-                                ${order.totalAmount.toFixed(2)}
+                                ${(order.totalAmount || 0).toFixed(2)}
                               </span>
                             </div>
                           </>

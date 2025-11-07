@@ -322,13 +322,13 @@ export default function AdminGalleryPage() {
                 </p>
                 <div className="flex items-center gap-2 mb-3">
                   <span className="text-xs px-2 py-1 bg-amber-50 text-amber-700 rounded">
-                    {getCategoryLabel(item.category)}
+                  {getCategoryLabel(item.category)}
+                </span>
+                {item.displayOrder != null && item.displayOrder > 0 && (
+                  <span className="text-xs px-2 py-1 bg-gray-100 text-gray-600 rounded">
+                    Order: {item.displayOrder}
                   </span>
-                  {item.displayOrder > 0 && (
-                    <span className="text-xs px-2 py-1 bg-gray-100 text-gray-600 rounded">
-                      Order: {item.displayOrder}
-                    </span>
-                  )}
+                )}
                 </div>
 
                 {/* Tags */}

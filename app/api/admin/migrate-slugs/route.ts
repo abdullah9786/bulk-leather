@@ -129,8 +129,8 @@ export async function GET(req: NextRequest) {
     
     const totalProducts = await Product.countDocuments({});
     const productsWithSlugs = await Product.countDocuments({ 
-      slug: { $exists: true, $ne: null, $ne: "" } 
-    });
+      slug: { $exists: true, $nin: [null, ""] } 
+    } as any);
     const productsWithoutSlugs = await Product.countDocuments({ 
       $or: [
         { slug: { $exists: false } },

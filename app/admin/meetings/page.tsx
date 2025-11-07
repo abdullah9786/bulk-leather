@@ -250,9 +250,9 @@ export default function AdminMeetingsPage() {
                           {new Date(meeting.date).toLocaleDateString()}
                         </p>
                         <p className="text-xs text-gray-500">{meeting.timeSlot}</p>
-                        {meeting.timezone && (
+                        {(meeting as any).timezone && (
                           <p className="text-xs text-blue-600 mt-0.5">
-                            🌍 {meeting.timezone.split('/')[1]?.replace('_', ' ') || meeting.timezone}
+                            🌍 {((meeting as any).timezone as string).split('/')[1]?.replace('_', ' ') || (meeting as any).timezone}
                           </p>
                         )}
                       </td>
@@ -347,9 +347,9 @@ export default function AdminMeetingsPage() {
                 <div>
                   <p className="text-sm text-gray-500 mb-1">Time</p>
                   <p className="font-medium text-gray-900">{selectedMeeting.timeSlot}</p>
-                  {selectedMeeting.timezone && (
+                  {(selectedMeeting as any).timezone && (
                     <p className="text-xs text-blue-600 mt-1">
-                      🌍 {selectedMeeting.timezone}
+                      🌍 {(selectedMeeting as any).timezone}
                     </p>
                   )}
                 </div>

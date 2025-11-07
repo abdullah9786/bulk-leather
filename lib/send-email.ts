@@ -116,7 +116,7 @@ export async function sendMeetingConfirmation(emailData: EmailData) {
   return {
     success: true,
     to: emailData.to,
-    subject: `Meeting Scheduled - ${meetingDetails.meetingType.charAt(0).toUpperCase() + meetingDetails.meetingType.slice(1)} Meeting`,
+    subject: `Meeting Scheduled - ${emailData.meetingType.charAt(0).toUpperCase() + emailData.meetingType.slice(1)} Meeting`,
     body: emailBody,
   };
 }

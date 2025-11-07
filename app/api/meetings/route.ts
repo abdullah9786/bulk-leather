@@ -4,7 +4,7 @@ import connectDB from "@/lib/mongodb";
 import Meeting from "@/models/Meeting";
 import { withAdminAuth } from "@/lib/middleware";
 import { createCalendarEventWithMeet } from "@/lib/google-calendar-api";
-import { authOptions } from "../auth/[...nextauth]/route";
+import { authOptions } from "@/lib/next-auth-config";
 import { z } from "zod";
 
 const meetingSchema = z.object({

@@ -300,7 +300,9 @@ export default function ProductDetailPage() {
 
             {addedToCart && (
               <Toast
+                isOpen={true}
                 type="success"
+                title="Success"
                 message="Product added to cart!"
                 onClose={() => setAddedToCart(false)}
               />
@@ -325,10 +327,7 @@ export default function ProductDetailPage() {
             )}
 
             <div className="space-y-3">
-              <SchedulerButton 
-                productName={product.name}
-                productId={product._id || product.id}
-              />
+              <SchedulerButton />
               <Link href="/contact" className="block">
                 <Button variant="outline" className="w-full">
                   <Mail className="w-5 h-5 mr-2" />

@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import connectDB from "@/lib/mongodb";
 import Meeting from "@/models/Meeting";
-import { authOptions } from "../../auth/[...nextauth]/route";
+import { authOptions } from "@/lib/next-auth-config";
 
 // GET user's own meetings (authenticated users only)
 export async function GET(req: NextRequest) {

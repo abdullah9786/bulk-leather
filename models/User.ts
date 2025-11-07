@@ -6,6 +6,9 @@ export interface IUser {
   email: string;
   password: string;
   role: "admin" | "user";
+  image?: string;
+  timezone?: string;
+  isActive?: boolean;
   cart?: Array<{
     id: string;
     product: any;
@@ -37,6 +40,18 @@ const UserSchema = new Schema<IUser>(
       type: String,
       enum: ["admin", "user"],
       default: "user",
+    },
+    image: {
+      type: String,
+      required: false,
+    },
+    timezone: {
+      type: String,
+      required: false,
+    },
+    isActive: {
+      type: Boolean,
+      default: true,
     },
     cart: {
       type: Array,

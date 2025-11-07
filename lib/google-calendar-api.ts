@@ -161,8 +161,7 @@ This meeting was scheduled through BulkLeather.`,
         console.log('Error:', conferenceError.message);
         
         // Fallback: Create event without conferenceData
-        const simpleEvent = { ...event };
-        delete simpleEvent.conferenceData;
+        const { conferenceData, ...simpleEvent } = event;
         
         response = await calendar.events.insert({
           calendarId: process.env.GOOGLE_CALENDAR_ID || 'primary',

@@ -12,10 +12,11 @@ export interface CartItem {
 
 interface CartContextType {
   cartItems: CartItem[];
-  addToCart: (product: Product, quantity: number) => void;
+  addToCart: (product: Product, quantity?: number) => void;
   removeFromCart: (id: string) => void;
   updateQuantity: (id: string, quantity: number) => void;
   clearCart: () => void;
+  cartTotal: number;
   cartCount: number;
   isCartOpen: boolean;
   openCart: () => void;
@@ -184,6 +185,11 @@ export function CartProvider({ children }: { children: ReactNode }) {
     setCartItems([]);
   };
 
+  const cartTotal = cartItems.reduce((sum, item) => {
+    const price = item.product.samplePrice || 0;
+    return sum + (price * item.quantity);
+  }, 0);
+
   const openCart = () => setIsCartOpen(true);
   const closeCart = () => setIsCartOpen(false);
 
@@ -201,10 +207,12 @@ export function CartProvider({ children }: { children: ReactNode }) {
         removeFromCart,
         updateQuantity,
         clearCart,
+        cartTotal,
         cartCount,
         isCartOpen,
         openCart,
         closeCart,
+        syncWithDatabase,
       }}
     >
       {children}

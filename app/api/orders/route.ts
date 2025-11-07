@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import connectDB from "@/lib/mongodb";
 import Order from "@/models/Order";
-import { authOptions } from "../auth/[...nextauth]/route";
+import { authOptions } from "@/lib/next-auth-config";
 import { z } from "zod";
 
 const orderSchema = z.object({

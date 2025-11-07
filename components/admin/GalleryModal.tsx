@@ -225,7 +225,6 @@ export function GalleryModal({ isOpen, onClose, onSuccess, item }: GalleryModalP
             onChange={(e) => setFormData({ ...formData, mediaUrl: e.target.value })}
             required
             placeholder="https://example.com/media.jpg"
-            icon={<Upload className="w-5 h-5" />}
           />
 
           {/* Thumbnail URL (for videos) */}
@@ -236,7 +235,7 @@ export function GalleryModal({ isOpen, onClose, onSuccess, item }: GalleryModalP
               value={formData.thumbnailUrl}
               onChange={(e) => setFormData({ ...formData, thumbnailUrl: e.target.value })}
               placeholder="https://example.com/thumbnail.jpg"
-              helpText="Provide a thumbnail image for the video"
+              helperText="Provide a thumbnail image for the video"
             />
           )}
 
@@ -246,7 +245,7 @@ export function GalleryModal({ isOpen, onClose, onSuccess, item }: GalleryModalP
             value={formData.tags}
             onChange={(e) => setFormData({ ...formData, tags: e.target.value })}
             placeholder="leather, manufacturing, quality"
-            helpText="Separate tags with commas"
+            helperText="Separate tags with commas"
           />
 
           {/* Display Order */}
@@ -256,7 +255,7 @@ export function GalleryModal({ isOpen, onClose, onSuccess, item }: GalleryModalP
             value={formData.displayOrder}
             onChange={(e) => setFormData({ ...formData, displayOrder: parseInt(e.target.value) || 0 })}
             placeholder="0"
-            helpText="Lower numbers appear first"
+            helperText="Lower numbers appear first"
           />
 
           {/* Active Status */}

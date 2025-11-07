@@ -3,7 +3,7 @@ import { getServerSession } from "next-auth";
 import connectDB from "@/lib/mongodb";
 import Inquiry from "@/models/Inquiry";
 import { withAdminAuth } from "@/lib/middleware";
-import { authOptions } from "../auth/[...nextauth]/route";
+import { authOptions } from "@/lib/next-auth-config";
 import { z } from "zod";
 
 const inquirySchema = z.object({

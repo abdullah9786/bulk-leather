@@ -33,7 +33,6 @@ const ProductSchema = new Schema<IProduct>(
       sparse: true, // Allows multiple null values but enforces uniqueness for non-null
       lowercase: true,
       trim: true,
-      index: true, // Index for fast lookups
     },
     category: {
       type: String,

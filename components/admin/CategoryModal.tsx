@@ -23,18 +23,79 @@ export function CategoryModal({ isOpen, onClose, onSuccess, category, mode }: Ca
     isActive: true,
   });
   const [loading, setLoading] = useState(false);
+  const [slugTouched, setSlugTouched] = useState(false);
+  const [originalSlug, setOriginalSlug] = useState("");
+  const [showRedirectOption, setShowRedirectOption] = useState(false);
+  const [createRedirect, setCreateRedirect] = useState(true);
 
+  // Generate slug from name
+  const generateSlug = (name: string) => {
+    return name
+      .toLowerCase()
+      .trim()
+      .replace(/[^a-z0-9\s-]/g, '') // Remove special characters
+      .replace(/\s+/g, '-') // Replace spaces with hyphens
+      .replace(/-+/g, '-') // Replace multiple hyphens with single hyphen
+      .replace(/^-|-$/g, ''); // Remove leading/trailing hyphens
+  };
+
+  // Reset form when modal closes or opens
   useEffect(() => {
-    if (category && mode === "edit") {
-      setFormData({
-        name: category.name || "",
-        slug: category.slug || "",
-        description: category.description || "",
-        image: category.image || "",
-        isActive: category.isActive !== false,
-      });
+    if (isOpen) {
+      if (category && mode === "edit") {
+        // Populate form with category data
+        setFormData({
+          name: category.name || "",
+          slug: category.slug || "",
+          description: category.description || "",
+          image: category.image || "",
+          isActive: category.isActive !== false,
+        });
+        setOriginalSlug(category.slug || "");
+        setSlugTouched(false); // Allow auto-generation even when editing
+        setShowRedirectOption(false);
+      } else {
+        // Reset form for add mode
+        resetForm();
+      }
     }
-  }, [category, mode]);
+  }, [isOpen, category, mode]);
+
+  // Auto-generate slug when name changes (only if slug hasn't been manually edited)
+  const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newName = e.target.value;
+    const newSlug = slugTouched ? formData.slug : generateSlug(newName);
+    
+    setFormData(prev => ({
+      ...prev,
+      name: newName,
+      slug: newSlug
+    }));
+    
+    // Show redirect option if editing and slug has changed
+    if (mode === "edit" && originalSlug && newSlug !== originalSlug && !slugTouched) {
+      setShowRedirectOption(true);
+    } else if (newSlug === originalSlug) {
+      setShowRedirectOption(false);
+    }
+  };
+
+  // Mark slug as manually touched
+  const handleSlugChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSlugTouched(true);
+    const newSlug = e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '');
+    setFormData(prev => ({
+      ...prev,
+      slug: newSlug
+    }));
+    
+    // Show redirect option if editing and slug has changed
+    if (mode === "edit" && originalSlug && newSlug !== originalSlug) {
+      setShowRedirectOption(true);
+    } else {
+      setShowRedirectOption(false);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -45,22 +106,35 @@ export function CategoryModal({ isOpen, onClose, onSuccess, category, mode }: Ca
       const url = mode === "edit" ? `/api/categories/${category._id}` : "/api/categories";
       const method = mode === "edit" ? "PUT" : "POST";
 
+      // Prepare payload
+      const payload: any = { ...formData };
+      
+      // If slug changed and redirect option is shown, include redirect flag
+      if (showRedirectOption && createRedirect && originalSlug !== formData.slug) {
+        payload.createRedirect = true;
+        payload.oldSlug = originalSlug;
+      }
+
       const response = await fetch(url, {
         method,
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(payload),
       });
 
+      const responseData = await response.json();
+
       if (response.ok) {
+        if (showRedirectOption && createRedirect) {
+          alert(`Category updated successfully! Redirect created from "${originalSlug}" to "${formData.slug}"`);
+        }
         onSuccess();
         onClose();
         resetForm();
       } else {
-        const error = await response.json();
-        alert(`Error: ${error.error || "Failed to save category"}`);
+        alert(`Error: ${responseData.error || "Failed to save category"}`);
       }
     } catch (error) {
       console.error("Error saving category:", error);
@@ -78,16 +152,10 @@ export function CategoryModal({ isOpen, onClose, onSuccess, category, mode }: Ca
       image: "",
       isActive: true,
     });
-  };
-
-  // Auto-generate slug from name
-  const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const name = e.target.value;
-    setFormData({
-      ...formData,
-      name,
-      slug: mode === "add" ? name.toLowerCase().replace(/\s+/g, "-") : formData.slug,
-    });
+    setSlugTouched(false);
+    setOriginalSlug("");
+    setShowRedirectOption(false);
+    setCreateRedirect(true);
   };
 
   if (!isOpen) return null;
@@ -113,13 +181,41 @@ export function CategoryModal({ isOpen, onClose, onSuccess, category, mode }: Ca
             placeholder="Bags"
           />
 
-          <Input
-            label="Slug *"
-            value={formData.slug}
-            onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
-            required
-            placeholder="bags"
-          />
+          <div>
+            <Input
+              label="Slug *"
+              value={formData.slug}
+              onChange={handleSlugChange}
+              required
+              placeholder="bags"
+              helperText="URL-friendly version of name (auto-generated)"
+            />
+            
+            {showRedirectOption && (
+              <div className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                <div className="flex items-start gap-3">
+                  <input
+                    type="checkbox"
+                    id="createRedirect"
+                    checked={createRedirect}
+                    onChange={(e) => setCreateRedirect(e.target.checked)}
+                    className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500 mt-1"
+                  />
+                  <div className="flex-1">
+                    <label htmlFor="createRedirect" className="text-sm font-medium text-blue-900 cursor-pointer">
+                      Create redirect from old URL
+                    </label>
+                    <p className="text-xs text-blue-700 mt-1">
+                      Automatically redirect <span className="font-mono bg-blue-100 px-1 rounded">/categories/{originalSlug}</span> to <span className="font-mono bg-blue-100 px-1 rounded">/categories/{formData.slug}</span>
+                    </p>
+                    <p className="text-xs text-blue-600 mt-1">
+                      ✓ Recommended to prevent broken links and maintain SEO
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
 
           <Textarea
             label="Description *"

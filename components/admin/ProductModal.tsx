@@ -18,6 +18,7 @@ interface ProductModalProps {
 export function ProductModal({ isOpen, onClose, onSuccess, product, mode }: ProductModalProps) {
   const [formData, setFormData] = useState({
     name: "",
+    slug: "",
     category: "",
     description: "",
     material: "",
@@ -31,25 +32,113 @@ export function ProductModal({ isOpen, onClose, onSuccess, product, mode }: Prod
     isActive: true,
   });
   const [loading, setLoading] = useState(false);
+  const [slugTouched, setSlugTouched] = useState(false);
+  const [originalSlug, setOriginalSlug] = useState("");
+  const [showRedirectOption, setShowRedirectOption] = useState(false);
+  const [createRedirect, setCreateRedirect] = useState(true);
 
+  // Generate slug from name
+  const generateSlug = (name: string) => {
+    return name
+      .toLowerCase()
+      .trim()
+      .replace(/[^a-z0-9\s-]/g, '') // Remove special characters
+      .replace(/\s+/g, '-') // Replace spaces with hyphens
+      .replace(/-+/g, '-') // Replace multiple hyphens with single hyphen
+      .replace(/^-|-$/g, ''); // Remove leading/trailing hyphens
+  };
+
+  // Define resetForm before useEffect
+  const resetForm = () => {
+    setFormData({
+      name: "",
+      slug: "",
+      category: "",
+      description: "",
+      material: "",
+      images: "",
+      moq: "",
+      priceRange: "",
+      samplePrice: "",
+      features: "",
+      colors: "",
+      sizes: "",
+      isActive: true,
+    });
+    setSlugTouched(false);
+    setOriginalSlug("");
+    setShowRedirectOption(false);
+    setCreateRedirect(true);
+  };
+
+  // Reset form when modal opens
   useEffect(() => {
-    if (product && mode === "edit") {
-      setFormData({
-        name: product.name || "",
-        category: product.category || "",
-        description: product.description || "",
-        material: product.material || "",
-        images: product.images?.join("\n") || "",
-        moq: product.moq?.toString() || "",
-        priceRange: product.priceRange || "",
-        samplePrice: product.samplePrice?.toString() || "",
-        features: product.features?.join("\n") || "",
-        colors: product.colors?.join(", ") || "",
-        sizes: product.sizes?.join(", ") || "",
-        isActive: product.isActive !== false,
-      });
+    if (isOpen) {
+      if (product && mode === "edit") {
+        // Auto-generate slug if product doesn't have one
+        const productSlug = product.slug || generateSlug(product.name);
+        
+        // Populate form with product data
+        setFormData({
+          name: product.name || "",
+          slug: productSlug,
+          category: product.category || "",
+          description: product.description || "",
+          material: product.material || "",
+          images: product.images?.join("\n") || "",
+          moq: product.moq?.toString() || "",
+          priceRange: product.priceRange || "",
+          samplePrice: product.samplePrice?.toString() || "",
+          features: product.features?.join("\n") || "",
+          colors: product.colors?.join(", ") || "",
+          sizes: product.sizes?.join(", ") || "",
+          isActive: product.isActive !== false,
+        });
+        setOriginalSlug(product.slug || "");
+        setSlugTouched(false);
+        setShowRedirectOption(false);
+      } else {
+        // Reset form for add mode
+        resetForm();
+      }
     }
-  }, [product, mode]);
+  }, [isOpen, product, mode]);
+
+  // Auto-generate slug when name changes
+  const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newName = e.target.value;
+    const newSlug = slugTouched ? formData.slug : generateSlug(newName);
+    
+    setFormData(prev => ({
+      ...prev,
+      name: newName,
+      slug: newSlug
+    }));
+    
+    // Show redirect option if editing and slug has changed
+    if (mode === "edit" && originalSlug && newSlug !== originalSlug && !slugTouched) {
+      setShowRedirectOption(true);
+    } else if (newSlug === originalSlug) {
+      setShowRedirectOption(false);
+    }
+  };
+
+  // Mark slug as manually touched
+  const handleSlugChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSlugTouched(true);
+    const newSlug = e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '');
+    setFormData(prev => ({
+      ...prev,
+      slug: newSlug
+    }));
+    
+    // Show redirect option if editing and slug has changed
+    if (mode === "edit" && originalSlug && newSlug !== originalSlug) {
+      setShowRedirectOption(true);
+    } else {
+      setShowRedirectOption(false);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -57,8 +146,9 @@ export function ProductModal({ isOpen, onClose, onSuccess, product, mode }: Prod
 
     try {
       const token = localStorage.getItem("admin-token");
-      const productData = {
+      const productData: any = {
         name: formData.name,
+        slug: formData.slug,
         category: formData.category,
         description: formData.description,
         material: formData.material,
@@ -71,6 +161,12 @@ export function ProductModal({ isOpen, onClose, onSuccess, product, mode }: Prod
         sizes: formData.sizes ? formData.sizes.split(",").map(s => s.trim()).filter(Boolean) : undefined,
         isActive: formData.isActive,
       };
+
+      // If slug changed and redirect option is shown, include redirect flag
+      if (showRedirectOption && createRedirect && originalSlug !== formData.slug) {
+        productData.createRedirect = true;
+        productData.oldSlug = originalSlug;
+      }
       
       console.log("📤 Sending product data:", productData);
       console.log("💰 Sample Price being sent:", productData.samplePrice);
@@ -92,6 +188,9 @@ export function ProductModal({ isOpen, onClose, onSuccess, product, mode }: Prod
       console.log("💰 Sample Price in response:", responseData.data?.samplePrice);
 
       if (response.ok) {
+        if (showRedirectOption && createRedirect) {
+          alert(`Product updated successfully! Redirect created from "${originalSlug}" to "${formData.slug}"`);
+        }
         onSuccess();
         onClose();
         resetForm();
@@ -104,23 +203,6 @@ export function ProductModal({ isOpen, onClose, onSuccess, product, mode }: Prod
     } finally {
       setLoading(false);
     }
-  };
-
-  const resetForm = () => {
-    setFormData({
-      name: "",
-      category: "",
-      description: "",
-      material: "",
-      images: "",
-      moq: "",
-      priceRange: "",
-      samplePrice: "",
-      features: "",
-      colors: "",
-      sizes: "",
-      isActive: true,
-    });
   };
 
   if (!isOpen) return null;
@@ -142,7 +224,7 @@ export function ProductModal({ isOpen, onClose, onSuccess, product, mode }: Prod
             <Input
               label="Product Name *"
               value={formData.name}
-              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+              onChange={handleNameChange}
               required
               placeholder="Executive Leather Briefcase"
             />
@@ -159,6 +241,40 @@ export function ProductModal({ isOpen, onClose, onSuccess, product, mode }: Prod
               ]}
             />
           </div>
+
+          <Input
+            label="URL Slug *"
+            value={formData.slug}
+            onChange={handleSlugChange}
+            required
+            placeholder="executive-leather-briefcase"
+            helperText="Auto-generated from product name. Used in URL: /products/your-slug"
+          />
+
+          {showRedirectOption && (
+            <div className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+              <div className="flex items-start gap-3">
+                <input
+                  type="checkbox"
+                  id="createRedirect"
+                  checked={createRedirect}
+                  onChange={(e) => setCreateRedirect(e.target.checked)}
+                  className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500 mt-1"
+                />
+                <div className="flex-1">
+                  <label htmlFor="createRedirect" className="text-sm font-medium text-blue-900 cursor-pointer">
+                    Create redirect from old URL
+                  </label>
+                  <p className="text-xs text-blue-700 mt-1">
+                    Automatically redirect <span className="font-mono bg-blue-100 px-1 rounded">/products/{originalSlug}</span> to <span className="font-mono bg-blue-100 px-1 rounded">/products/{formData.slug}</span>
+                  </p>
+                  <p className="text-xs text-blue-600 mt-1">
+                    ✓ Recommended to prevent broken links and maintain SEO
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
 
           <Textarea
             label="Description *"

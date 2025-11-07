@@ -9,7 +9,8 @@ import {
   Trash2, 
   Eye,
   EyeOff,
-  Filter
+  Filter,
+  RefreshCw
 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
@@ -35,6 +36,7 @@ export default function AdminProductsPage() {
   const [modalOpen, setModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState<"add" | "edit">("add");
   const [selectedProduct, setSelectedProduct] = useState<Product | undefined>(undefined);
+  const [migrating, setMigrating] = useState(false);
 
   useEffect(() => {
     fetchProducts();
@@ -125,6 +127,52 @@ export default function AdminProductsPage() {
     setModalOpen(true);
   };
 
+  const handleMigrateSlugs = async () => {
+    if (!confirm("This will auto-generate slugs for all products that don't have one. Continue?")) {
+      return;
+    }
+
+    setMigrating(true);
+    try {
+      const token = localStorage.getItem("admin-token");
+      
+      console.log("🚀 Starting slug migration...");
+      
+      const response = await fetch("/api/admin/migrate-slugs", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      console.log("📡 Response status:", response.status);
+      
+      const data = await response.json();
+      console.log("📦 Response data:", data);
+
+      if (data.success) {
+        const message = `${data.message}\n\n✅ Updated: ${data.updated}\n❌ Errors: ${data.errors}\n📦 Total: ${data.total}`;
+        alert(message);
+        
+        if (data.errorDetails && data.errorDetails.length > 0) {
+          console.error("Migration errors:", data.errorDetails);
+        }
+        
+        fetchProducts(); // Refresh the list
+      } else {
+        const errorMsg = `Error: ${data.error || "Failed to migrate slugs"}\n\nDetails: ${data.details || "Unknown error"}`;
+        alert(errorMsg);
+        console.error("Migration failed:", data);
+      }
+    } catch (error) {
+      console.error("Error migrating slugs:", error);
+      alert(`Failed to migrate slugs: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    } finally {
+      setMigrating(false);
+    }
+  };
+
   const handleEdit = (product: Product) => {
     setSelectedProduct(product);
     setModalMode("edit");
@@ -139,10 +187,20 @@ export default function AdminProductsPage() {
           <h1 className="text-3xl font-bold text-gray-900 mb-2">Products</h1>
           <p className="text-gray-500">Manage your product catalog</p>
         </div>
-        <Button className="mt-4 md:mt-0" onClick={handleAddNew}>
-          <Plus className="mr-2 w-5 h-5" />
-          Add New Product
-        </Button>
+        <div className="flex flex-col sm:flex-row gap-3 mt-4 md:mt-0">
+          <Button 
+            variant="outline" 
+            onClick={handleMigrateSlugs}
+            disabled={migrating}
+          >
+            <RefreshCw className={`mr-2 w-5 h-5 ${migrating ? 'animate-spin' : ''}`} />
+            {migrating ? 'Migrating...' : 'Fix Slugs'}
+          </Button>
+          <Button onClick={handleAddNew}>
+            <Plus className="mr-2 w-5 h-5" />
+            Add New Product
+          </Button>
+        </div>
       </div>
 
       {/* Filters */}

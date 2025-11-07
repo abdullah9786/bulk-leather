@@ -268,6 +268,7 @@ export default function ProductsPage() {
           >
             {filteredProducts.map((product, index) => {
               const productId = (product as any)._id || product.id;
+              const productSlug = product.slug || productId;
               return (
                 <motion.div
                   key={productId}
@@ -309,10 +310,11 @@ function ProductCard({
   isAdded: boolean;
 }) {
   const productId = (product as any)._id || product.id;
+  const productSlug = product.slug || productId;
   
   return (
     <Card className="group overflow-hidden p-0 h-full flex flex-col">
-      <Link href={`/products/${productId}`}>
+      <Link href={`/products/${productSlug}`}>
         <div className="relative h-64 overflow-hidden cursor-pointer">
           <Image
             src={product.images[0]}
@@ -326,7 +328,7 @@ function ProductCard({
         </div>
       </Link>
       <div className="p-6 flex-1 flex flex-col">
-        <Link href={`/products/${productId}`} className="cursor-pointer">
+        <Link href={`/products/${productSlug}`} className="cursor-pointer">
           <div className="mb-2">
             <span className="text-xs font-semibold text-[var(--color-accent)] uppercase tracking-wide">
               {product.category}
@@ -344,7 +346,7 @@ function ProductCard({
             <span className="text-lg font-bold text-[var(--color-text)]">
               {product.priceRange}
             </span>
-            <Link href={`/products/${productId}`}>
+            <Link href={`/products/${productSlug}`}>
               <Button variant="ghost" size="sm" className="hover:text-[var(--color-accent)]">
                 Details →
               </Button>
@@ -389,11 +391,12 @@ function ProductListItem({
   isAdded: boolean;
 }) {
   const productId = (product as any)._id || product.id;
+  const productSlug = product.slug || productId;
   
   return (
     <Card className="group overflow-hidden p-0">
       <div className="flex flex-col md:flex-row">
-        <Link href={`/products/${productId}`} className="relative w-full md:w-80 h-64 flex-shrink-0 cursor-pointer">
+        <Link href={`/products/${productSlug}`} className="relative w-full md:w-80 h-64 flex-shrink-0 cursor-pointer">
           <Image
             src={product.images[0]}
             alt={product.name}
@@ -403,7 +406,7 @@ function ProductListItem({
         </Link>
         <div className="p-6 flex-1">
           <div className="flex items-start justify-between mb-3">
-            <Link href={`/products/${productId}`} className="cursor-pointer flex-1">
+            <Link href={`/products/${productSlug}`} className="cursor-pointer flex-1">
               <span className="text-xs font-semibold text-[var(--color-accent)] uppercase tracking-wide">
                 {product.category}
               </span>
@@ -433,7 +436,7 @@ function ProductListItem({
             </div>
           </div>
           <div className="flex flex-wrap gap-3">
-            <Link href={`/products/${productId}`}>
+            <Link href={`/products/${productSlug}`}>
               <Button variant="outline" size="sm">
                 View Full Details →
               </Button>

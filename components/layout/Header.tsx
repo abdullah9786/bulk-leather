@@ -140,7 +140,7 @@ export const Header = () => {
                       categories.map((category) => (
                         <Link
                           key={category._id || category.id}
-                          href={`/products?category=${category.slug}`}
+                          href={`/categories/${category.slug}`}
                           onClick={() => setCategoriesMenuOpen(false)}
                           className="block px-4 py-2 rounded-lg hover:bg-[var(--color-secondary)] text-[var(--color-body)] hover:text-[var(--color-accent)] transition-colors text-sm"
                         >
@@ -275,7 +275,7 @@ export const Header = () => {
                     categories.map((category) => (
                       <Link
                         key={category._id || category.id}
-                        href={`/products?category=${category.slug}`}
+                        href={`/categories/${category.slug}`}
                         onClick={() => setMobileMenuOpen(false)}
                         className="block px-4 py-2 rounded-lg hover:bg-[var(--color-secondary)] text-[var(--color-body)] transition-colors"
                       >

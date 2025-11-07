@@ -1,11 +1,24 @@
 import { NextRequest, NextResponse } from "next/server";
 import connectDB from "@/lib/mongodb";
 import Product from "@/models/Product";
+import Redirect from "@/models/Redirect";
 import { withAdminAuth } from "@/lib/middleware";
 import { z } from "zod";
 
+// Helper function to generate slug from name
+function generateSlug(name: string): string {
+  return name
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9\s-]/g, '')
+    .replace(/\s+/g, '-')
+    .replace(/-+/g, '-')
+    .replace(/^-|-$/g, '');
+}
+
 const productUpdateSchema = z.object({
   name: z.string().min(2).optional(),
+  slug: z.string().min(2).optional(),
   category: z.string().optional(),
   description: z.string().min(10).optional(),
   material: z.string().optional(),
@@ -61,12 +74,64 @@ export const PUT = withAdminAuth(async (
     const id = url.pathname.split('/').pop();
 
     const body = await req.json();
+    const { createRedirect, oldSlug, ...productData } = body;
+    
     console.log("📥 Update request body:", body);
     console.log("💰 SamplePrice in request:", body.samplePrice);
+    console.log("🔖 Slug in request:", body.slug);
     
-    const validatedData = productUpdateSchema.parse(body);
+    const validatedData = productUpdateSchema.parse(productData);
     console.log("✅ Validated data:", validatedData);
     console.log("💰 SamplePrice after validation:", validatedData.samplePrice);
+    console.log("🔖 Slug after validation:", validatedData.slug);
+
+    // Auto-generate slug if updating name but no slug provided
+    if (validatedData.name && !validatedData.slug) {
+      validatedData.slug = generateSlug(validatedData.name);
+      console.log("🔖 Auto-generated slug:", validatedData.slug);
+    }
+
+    // Check for duplicate slug (excluding current product)
+    if (validatedData.slug) {
+      const existingProduct = await Product.findOne({ 
+        slug: validatedData.slug,
+        _id: { $ne: id }
+      });
+      if (existingProduct) {
+        return NextResponse.json(
+          { error: `A product with slug "${validatedData.slug}" already exists. Please use a different slug.` },
+          { status: 400 }
+        );
+      }
+    }
+
+    // Handle redirect creation if slug changed
+    if (createRedirect && oldSlug && validatedData.slug && oldSlug !== validatedData.slug) {
+      try {
+        const existingRedirect = await Redirect.findOne({ 
+          fromSlug: oldSlug, 
+          type: "product" 
+        });
+        
+        if (existingRedirect) {
+          await Redirect.findByIdAndUpdate(existingRedirect._id, { 
+            toSlug: validatedData.slug, 
+            isActive: true 
+          });
+          console.log(`✅ Updated redirect: ${oldSlug} → ${validatedData.slug}`);
+        } else {
+          await Redirect.create({ 
+            fromSlug: oldSlug, 
+            toSlug: validatedData.slug, 
+            type: "product", 
+            isActive: true 
+          });
+          console.log(`✅ Created redirect: ${oldSlug} → ${validatedData.slug}`);
+        }
+      } catch (redirectError) {
+        console.error("Error creating redirect:", redirectError);
+      }
+    }
 
     const product = await Product.findByIdAndUpdate(
       id,

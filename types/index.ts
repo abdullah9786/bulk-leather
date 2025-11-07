@@ -4,6 +4,7 @@ export interface Product {
   id: string;
   _id?: string; // MongoDB ID
   name: string;
+  slug?: string; // Optional for backward compatibility
   category: string;
   description: string;
   material: string;

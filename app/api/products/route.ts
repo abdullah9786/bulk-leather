@@ -4,8 +4,20 @@ import Product from "@/models/Product";
 import { withAdminAuth } from "@/lib/middleware";
 import { z } from "zod";
 
+// Helper function to generate slug from name
+function generateSlug(name: string): string {
+  return name
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9\s-]/g, '')
+    .replace(/\s+/g, '-')
+    .replace(/-+/g, '-')
+    .replace(/^-|-$/g, '');
+}
+
 const productSchema = z.object({
   name: z.string().min(2),
+  slug: z.string().min(2).optional(), // Make optional, will auto-generate if missing
   category: z.string(),
   description: z.string().min(10),
   material: z.string(),
@@ -69,6 +81,20 @@ export const POST = withAdminAuth(async (req: NextRequest) => {
 
     const body = await req.json();
     const validatedData = productSchema.parse(body);
+
+    // Auto-generate slug if not provided
+    if (!validatedData.slug) {
+      validatedData.slug = generateSlug(validatedData.name);
+    }
+
+    // Check for duplicate slug
+    const existingProduct = await Product.findOne({ slug: validatedData.slug });
+    if (existingProduct) {
+      return NextResponse.json(
+        { error: `A product with slug "${validatedData.slug}" already exists. Please use a different slug.` },
+        { status: 400 }
+      );
+    }
 
     const product = await Product.create(validatedData);
 

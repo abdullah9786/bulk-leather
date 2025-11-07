@@ -3,6 +3,7 @@ import mongoose, { Schema, Model } from "mongoose";
 export interface IProduct {
   _id: string;
   name: string;
+  slug: string;
   category: string;
   description: string;
   material: string;
@@ -24,6 +25,15 @@ const ProductSchema = new Schema<IProduct>(
       type: String,
       required: [true, "Product name is required"],
       trim: true,
+    },
+    slug: {
+      type: String,
+      required: false, // Made optional for backward compatibility
+      unique: true,
+      sparse: true, // Allows multiple null values but enforces uniqueness for non-null
+      lowercase: true,
+      trim: true,
+      index: true, // Index for fast lookups
     },
     category: {
       type: String,
@@ -82,6 +92,11 @@ const ProductSchema = new Schema<IProduct>(
     timestamps: true,
   }
 );
+
+// Create index for slug for optimized queries
+ProductSchema.index({ slug: 1 });
+// Compound index for category + active status (used in category pages)
+ProductSchema.index({ category: 1, isActive: 1 });
 
 const Product: Model<IProduct> = 
   mongoose.models.Product || mongoose.model<IProduct>("Product", ProductSchema);

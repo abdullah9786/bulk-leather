@@ -6,9 +6,10 @@ import { cn } from "@/lib/utils";
 interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   label?: string;
   error?: string;
+  helperText?: string;
 }
 
-export const Input: React.FC<InputProps> = ({ label, error, className, ...props }) => {
+export const Input: React.FC<InputProps> = ({ label, error, helperText, className, ...props }) => {
   return (
     <div className="w-full">
       {label && (
@@ -25,6 +26,9 @@ export const Input: React.FC<InputProps> = ({ label, error, className, ...props 
         )}
         {...props}
       />
+      {helperText && !error && (
+        <p className="mt-1 text-xs text-[var(--color-body)]">{helperText}</p>
+      )}
       {error && <p className="mt-1 text-sm text-red-500">{error}</p>}
     </div>
   );

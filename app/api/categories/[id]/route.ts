@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import connectDB from "@/lib/mongodb";
 import Category from "@/models/Category";
+import Redirect from "@/models/Redirect";
 import { withAdminAuth } from "@/lib/middleware";
 import { z } from "zod";
 
@@ -51,7 +52,40 @@ export const PUT = withAdminAuth(async (req: NextRequest, userId: string) => {
     const id = url.pathname.split('/').pop();
 
     const body = await req.json();
-    const validatedData = categoryUpdateSchema.parse(body);
+    const { createRedirect, oldSlug, ...categoryData } = body;
+    const validatedData = categoryUpdateSchema.parse(categoryData);
+
+    // Create redirect if requested and slug changed
+    if (createRedirect && oldSlug && validatedData.slug && oldSlug !== validatedData.slug) {
+      try {
+        // Check if redirect already exists
+        const existingRedirect = await Redirect.findOne({ 
+          fromSlug: oldSlug, 
+          type: "category" 
+        });
+
+        if (existingRedirect) {
+          // Update existing redirect
+          await Redirect.findByIdAndUpdate(existingRedirect._id, {
+            toSlug: validatedData.slug,
+            isActive: true,
+          });
+          console.log(`✅ Updated redirect: ${oldSlug} → ${validatedData.slug}`);
+        } else {
+          // Create new redirect
+          await Redirect.create({
+            fromSlug: oldSlug,
+            toSlug: validatedData.slug,
+            type: "category",
+            isActive: true,
+          });
+          console.log(`✅ Created redirect: ${oldSlug} → ${validatedData.slug}`);
+        }
+      } catch (redirectError) {
+        console.error("Error creating redirect:", redirectError);
+        // Don't fail the category update if redirect fails
+      }
+    }
 
     const category = await Category.findByIdAndUpdate(
       id,

@@ -201,6 +201,7 @@ export default function HomePage() {
               </div>
             ) : products.slice(0, 4).map((product, index) => {
               const productId = (product as any)._id || product.id;
+              const productSlug = product.slug || productId;
               return (
                 <motion.div
                   key={productId}
@@ -281,13 +282,13 @@ export default function HomePage() {
 
                         {/* CTA Buttons */}
                         <div className="grid grid-cols-2 gap-3">
-                          <Link href={`/products/${productId}`} className="w-full">
+                          <Link href={`/products/${productSlug}`} className="w-full">
                             <Button variant="primary" size="sm" className="w-full h-10 group whitespace-nowrap">
                               Get Quote
                               <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
                             </Button>
                           </Link>
-                          <Link href={`/products/${productId}`} className="w-full">
+                          <Link href={`/products/${productSlug}`} className="w-full">
                             <Button variant="outline" size="sm" className="w-full h-10 group whitespace-nowrap">
                               View Details
                               <Package className="ml-2 w-4 h-4" />
@@ -376,7 +377,7 @@ export default function HomePage() {
                 <div className="w-12 h-12 border-4 border-[var(--color-accent)] border-t-transparent rounded-full animate-spin" />
               </div>
             ) : categories.map((category, index) => (
-              <Link key={category._id || category.id} href={`/products?category=${category.slug}`}>
+              <Link key={category._id || category.id} href={`/categories/${category.slug}`}>
                 <Card className="group cursor-pointer overflow-hidden p-0">
                   <div className="relative h-64 overflow-hidden">
                     <Image

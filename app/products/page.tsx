@@ -1,6 +1,12 @@
 import { Metadata } from "next";
 import ProductsClient from "./ProductsClient";
 
+const getBaseUrl = () => {
+  if (process.env.NEXT_PUBLIC_BASE_URL) return process.env.NEXT_PUBLIC_BASE_URL;
+  if (process.env.VERCEL_URL) return `https://${process.env.VERCEL_URL}`;
+  return 'http://localhost:3000';
+};
+
 export const metadata: Metadata = {
   title: "Wholesale Leather Products Catalog | BulkLeather",
   description: "Browse our extensive catalog of wholesale leather products including bags, jackets, wallets, belts, and accessories. Competitive pricing, flexible MOQ, and custom branding available for B2B buyers.",
@@ -9,7 +15,7 @@ export const metadata: Metadata = {
     title: "Wholesale Leather Products Catalog | BulkLeather",
     description: "Browse our extensive catalog of wholesale leather products. Competitive pricing, flexible MOQ, and custom branding available.",
     type: "website",
-    url: "https://bulkleather.com/products",
+    url: `${getBaseUrl()}/products`,
   },
   twitter: {
     card: "summary_large_image",
@@ -17,7 +23,7 @@ export const metadata: Metadata = {
     description: "Browse our extensive catalog of wholesale leather products with competitive pricing and flexible MOQ.",
   },
   alternates: {
-    canonical: "https://bulkleather.com/products",
+    canonical: `${getBaseUrl()}/products`,
   },
 };
 

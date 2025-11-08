@@ -1,6 +1,12 @@
 import { Metadata } from "next";
 import ContactClient from "./ContactClient";
 
+const getBaseUrl = () => {
+  if (process.env.NEXT_PUBLIC_BASE_URL) return process.env.NEXT_PUBLIC_BASE_URL;
+  if (process.env.VERCEL_URL) return `https://${process.env.VERCEL_URL}`;
+  return 'http://localhost:3000';
+};
+
 export const metadata: Metadata = {
   title: "Contact Us - Get Wholesale Leather Pricing & Quotes | BulkLeather",
   description: "Contact BulkLeather for wholesale pricing, custom orders, and bulk leather product inquiries. Get fast quotes on bags, jackets, wallets, and accessories. Available for retailers and distributors worldwide.",
@@ -9,7 +15,7 @@ export const metadata: Metadata = {
     title: "Contact Us - Wholesale Leather Supplier | BulkLeather",
     description: "Contact us for wholesale pricing, custom orders, and bulk leather product inquiries. Fast quotes available.",
     type: "website",
-    url: "https://bulkleather.com/contact",
+    url: `${getBaseUrl()}/contact`,
   },
   twitter: {
     card: "summary_large_image",
@@ -17,7 +23,7 @@ export const metadata: Metadata = {
     description: "Contact us for wholesale pricing and custom orders. Fast quotes available.",
   },
   alternates: {
-    canonical: "https://bulkleather.com/contact",
+    canonical: `${getBaseUrl()}/contact`,
   },
 };
 

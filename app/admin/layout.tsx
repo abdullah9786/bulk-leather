@@ -41,11 +41,20 @@ export default function AdminLayout({
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [isMounted, setIsMounted] = useState(false);
 
   // Skip auth check for login page
   const isLoginPage = pathname === "/admin/login";
 
+  // Ensure component is mounted on client side
   useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  useEffect(() => {
+    // Only run on client side after mount
+    if (!isMounted) return;
+
     // Skip auth check for login page
     if (isLoginPage) {
       setLoading(false);
@@ -61,18 +70,25 @@ export default function AdminLayout({
       return;
     }
 
-    const parsedUser = JSON.parse(userData);
-    
-    // Check if user has admin role
-    if (parsedUser.role !== "admin") {
-      alert("Access Denied: Admin privileges required");
-      router.push("/");
+    try {
+      const parsedUser = JSON.parse(userData);
+      
+      // Check if user has admin role
+      if (parsedUser.role !== "admin") {
+        alert("Access Denied: Admin privileges required");
+        router.push("/");
+        return;
+      }
+
+      setUser(parsedUser);
+    } catch (error) {
+      console.error("Error parsing user data:", error);
+      router.push("/admin/login");
       return;
     }
 
-    setUser(parsedUser);
     setLoading(false);
-  }, [router, pathname, isLoginPage]);
+  }, [router, pathname, isLoginPage, isMounted]);
 
   const handleLogout = () => {
     localStorage.removeItem("admin-token");

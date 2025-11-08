@@ -1,6 +1,12 @@
 import { Metadata } from "next";
 import HomeClient from "./HomeClient";
 
+const getBaseUrl = () => {
+  if (process.env.NEXT_PUBLIC_BASE_URL) return process.env.NEXT_PUBLIC_BASE_URL;
+  if (process.env.VERCEL_URL) return `https://${process.env.VERCEL_URL}`;
+  return 'http://localhost:3000';
+};
+
 export const metadata: Metadata = {
   title: "BulkLeather - Premium Wholesale Leather Goods Manufacturer & Supplier",
   description: "Leading wholesale leather goods manufacturer offering premium bags, jackets, wallets, belts & accessories. Flexible MOQ, custom branding, global shipping. Perfect for retailers & distributors.",
@@ -9,7 +15,7 @@ export const metadata: Metadata = {
     title: "BulkLeather - Premium Wholesale Leather Goods Manufacturer",
     description: "Leading wholesale leather goods manufacturer offering premium bags, jackets, wallets, belts & accessories. Flexible MOQ, custom branding, global shipping.",
     type: "website",
-    url: "https://bulkleather.com",
+    url: getBaseUrl(),
     siteName: "BulkLeather",
   },
   twitter: {
@@ -18,7 +24,7 @@ export const metadata: Metadata = {
     description: "Leading wholesale leather goods manufacturer offering premium products with flexible MOQ and custom branding.",
   },
   alternates: {
-    canonical: "https://bulkleather.com",
+    canonical: getBaseUrl(),
   },
 };
 

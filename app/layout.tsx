@@ -5,8 +5,19 @@ import { CartProvider } from "@/contexts/CartContext";
 import { SessionProvider } from "@/components/providers/SessionProvider";
 import { ConditionalLayout } from "@/components/layout/ConditionalLayout";
 
+// Get the base URL for metadata
+const getBaseUrl = () => {
+  if (process.env.NEXT_PUBLIC_BASE_URL) {
+    return process.env.NEXT_PUBLIC_BASE_URL;
+  }
+  if (process.env.VERCEL_URL) {
+    return `https://${process.env.VERCEL_URL}`;
+  }
+  return 'http://localhost:3000';
+};
+
 export const metadata: Metadata = {
-  metadataBase: new URL('https://bulkleather.com'),
+  metadataBase: new URL(getBaseUrl()),
   title: {
     default: "BulkLeather - Premium Wholesale Leather Goods Manufacturer",
     template: "%s | BulkLeather"
@@ -30,7 +41,7 @@ export const metadata: Metadata = {
   openGraph: {
     type: 'website',
     locale: 'en_US',
-    url: 'https://bulkleather.com',
+    url: getBaseUrl(),
     siteName: 'BulkLeather',
     title: 'BulkLeather - Premium Wholesale Leather Goods Manufacturer',
     description: 'Leading wholesale leather manufacturer offering premium products with flexible MOQ and custom branding.',
@@ -50,13 +61,15 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const baseUrl = getBaseUrl();
+  
   // Structured data for organization
   const organizationSchema = {
     '@context': 'https://schema.org',
     '@type': 'Organization',
     name: 'BulkLeather',
-    url: 'https://bulkleather.com',
-    logo: 'https://bulkleather.com/logo.png',
+    url: baseUrl,
+    logo: `${baseUrl}/logo.png`,
     description: 'Leading wholesale leather goods manufacturer',
     contactPoint: {
       '@type': 'ContactPoint',

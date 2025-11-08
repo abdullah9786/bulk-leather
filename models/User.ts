@@ -54,7 +54,7 @@ const UserSchema = new Schema<IUser>(
       default: true,
     },
     cart: {
-      type: Array,
+      type: Schema.Types.Mixed,
       default: [],
     },
   },

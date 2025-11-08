@@ -6,9 +6,10 @@ import { cn } from "@/lib/utils";
 interface TextareaProps extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {
   label?: string;
   error?: string;
+  helperText?: string;
 }
 
-export const Textarea: React.FC<TextareaProps> = ({ label, error, className, ...props }) => {
+export const Textarea: React.FC<TextareaProps> = ({ label, error, helperText, className, ...props }) => {
   return (
     <div className="w-full">
       {label && (
@@ -26,6 +27,7 @@ export const Textarea: React.FC<TextareaProps> = ({ label, error, className, ...
         {...props}
       />
       {error && <p className="mt-1 text-sm text-red-500">{error}</p>}
+      {helperText && !error && <p className="mt-1 text-sm text-[var(--color-body)] opacity-70">{helperText}</p>}
     </div>
   );
 };

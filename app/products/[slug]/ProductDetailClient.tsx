@@ -296,7 +296,7 @@ export default function ProductDetailClient({ slug: productSlug }: Props) {
             </p>
 
             {/* Product Specifications */}
-            {(product.colors?.length > 0 || product.sizes?.length > 0) && (
+            {((product.colors?.length ?? 0) > 0 || (product.sizes?.length ?? 0) > 0) && (
               <div className="space-y-4 py-6 border-t border-b border-[var(--color-secondary)]">
                 {product.colors && product.colors.length > 0 && (
                   <div>

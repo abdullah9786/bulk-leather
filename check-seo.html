@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>SEO Meta Tags Checker</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        input {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        button {
+            background: #d4af37;
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 10px;
+        }
+        button:hover {
+            background: #b8941f;
+        }
+        .result {
+            margin-top: 30px;
+            padding: 20px;
+            background: #f9f9f9;
+            border-left: 4px solid #d4af37;
+            display: none;
+        }
+        .result.show {
+            display: block;
+        }
+        .tag {
+            margin: 15px 0;
+            padding: 10px;
+            background: white;
+            border-radius: 4px;
+        }
+        .tag-name {
+            font-weight: bold;
+            color: #d4af37;
+            margin-bottom: 5px;
+        }
+        .tag-value {
+            color: #333;
+            word-break: break-word;
+        }
+        .status {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            margin-left: 10px;
+        }
+        .status.found {
+            background: #4caf50;
+            color: white;
+        }
+        .status.missing {
+            background: #f44336;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 SEO Meta Tags Checker</h1>
+        <p>Enter a product URL to check its SEO meta tags:</p>
+        
+        <input 
+            type="text" 
+            id="urlInput" 
+            placeholder="http://localhost:3000/products/your-product-slug"
+            value="http://localhost:3000/products/leather-gloves-premium-lined"
+        >
+        
+        <button onclick="checkSEO()">Check SEO Tags</button>
+        
+        <div class="result" id="result">
+            <h3>SEO Tags Found:</h3>
+            <div id="tags"></div>
+        </div>
+    </div>
+
+    <script>
+        async function checkSEO() {
+            const url = document.getElementById('urlInput').value;
+            const resultDiv = document.getElementById('result');
+            const tagsDiv = document.getElementById('tags');
+            
+            try {
+                // Fetch the page
+                const response = await fetch(url);
+                const html = await response.text();
+                
+                // Parse HTML
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(html, 'text/html');
+                
+                // Extract meta tags
+                const tags = {
+                    'Page Title': doc.title,
+                    'Meta Description': doc.querySelector('meta[name="description"]')?.content,
+                    'Canonical URL': doc.querySelector('link[rel="canonical"]')?.href,
+                    'OG Title': doc.querySelector('meta[property="og:title"]')?.content,
+                    'OG Description': doc.querySelector('meta[property="og:description"]')?.content,
+                    'Twitter Card': doc.querySelector('meta[name="twitter:card"]')?.content,
+                    'Twitter Title': doc.querySelector('meta[name="twitter:title"]')?.content,
+                    'Twitter Description': doc.querySelector('meta[name="twitter:description"]')?.content,
+                };
+                
+                // Display results
+                tagsDiv.innerHTML = '';
+                Object.entries(tags).forEach(([name, value]) => {
+                    const status = value ? 'found' : 'missing';
+                    const statusText = value ? '✅ Found' : '❌ Missing';
+                    
+                    tagsDiv.innerHTML += `
+                        <div class="tag">
+                            <div class="tag-name">
+                                ${name}
+                                <span class="status ${status}">${statusText}</span>
+                            </div>
+                            <div class="tag-value">${value || 'Not set'}</div>
+                        </div>
+                    `;
+                });
+                
+                resultDiv.classList.add('show');
+            } catch (error) {
+                tagsDiv.innerHTML = `<div class="tag" style="color: red;">Error: ${error.message}</div>`;
+                resultDiv.classList.add('show');
+            }
+        }
+    </script>
+</body>
+</html>
+

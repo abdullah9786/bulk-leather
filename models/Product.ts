@@ -15,6 +15,8 @@ export interface IProduct {
   colors: string[];
   sizes?: string[];
   isActive: boolean;
+  metaTitle?: string;
+  metaDescription?: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -85,6 +87,16 @@ const ProductSchema = new Schema<IProduct>(
     isActive: {
       type: Boolean,
       default: true,
+    },
+    metaTitle: {
+      type: String,
+      trim: true,
+      maxlength: 60,
+    },
+    metaDescription: {
+      type: String,
+      trim: true,
+      maxlength: 160,
     },
   },
   {

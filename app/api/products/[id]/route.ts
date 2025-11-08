@@ -30,6 +30,8 @@ const productUpdateSchema = z.object({
   colors: z.array(z.string()).optional(),
   sizes: z.array(z.string()).optional(),
   isActive: z.boolean().optional(),
+  metaTitle: z.string().max(60).optional().nullable().transform(val => val || undefined),
+  metaDescription: z.string().max(160).optional().nullable().transform(val => val || undefined),
 });
 
 // GET single product (public)
@@ -79,11 +81,13 @@ export const PUT = withAdminAuth(async (
     console.log("📥 Update request body:", body);
     console.log("💰 SamplePrice in request:", body.samplePrice);
     console.log("🔖 Slug in request:", body.slug);
+    console.log("🔍 Meta fields in request:", { metaTitle: body.metaTitle, metaDescription: body.metaDescription });
     
     const validatedData = productUpdateSchema.parse(productData);
     console.log("✅ Validated data:", validatedData);
     console.log("💰 SamplePrice after validation:", validatedData.samplePrice);
     console.log("🔖 Slug after validation:", validatedData.slug);
+    console.log("🔍 Meta fields after validation:", { metaTitle: validatedData.metaTitle, metaDescription: validatedData.metaDescription });
 
     // Auto-generate slug if updating name but no slug provided
     if (validatedData.name && !validatedData.slug) {

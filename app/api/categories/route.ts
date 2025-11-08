@@ -10,6 +10,8 @@ const categorySchema = z.object({
   description: z.string().min(10),
   image: z.string().url(),
   isActive: z.boolean().optional(),
+  metaTitle: z.string().max(60).optional().nullable().transform(val => val || undefined),
+  metaDescription: z.string().max(160).optional().nullable().transform(val => val || undefined),
 });
 
 // GET all categories (public)
@@ -47,7 +49,11 @@ export const POST = withAdminAuth(async (req: NextRequest) => {
     await connectDB();
 
     const body = await req.json();
+    console.log("📥 Received category body in POST:", body);
+    console.log("🔍 Meta fields received:", { metaTitle: body.metaTitle, metaDescription: body.metaDescription });
     const validatedData = categorySchema.parse(body);
+    console.log("✅ Validated category data:", validatedData);
+    console.log("🔍 Meta fields after validation:", { metaTitle: validatedData.metaTitle, metaDescription: validatedData.metaDescription });
 
     const category = await Category.create(validatedData);
 

@@ -7,6 +7,8 @@ export interface ICategory {
   description: string;
   image: string;
   isActive: boolean;
+  metaTitle?: string;
+  metaDescription?: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -36,6 +38,16 @@ const CategorySchema = new Schema<ICategory>(
     isActive: {
       type: Boolean,
       default: true,
+    },
+    metaTitle: {
+      type: String,
+      trim: true,
+      maxlength: 60,
+    },
+    metaDescription: {
+      type: String,
+      trim: true,
+      maxlength: 160,
     },
   },
   {

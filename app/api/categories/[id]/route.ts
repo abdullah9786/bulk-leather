@@ -11,6 +11,8 @@ const categoryUpdateSchema = z.object({
   description: z.string().min(10).optional(),
   image: z.string().url().optional(),
   isActive: z.boolean().optional(),
+  metaTitle: z.string().max(60).optional().nullable().transform(val => val || undefined),
+  metaDescription: z.string().max(160).optional().nullable().transform(val => val || undefined),
 });
 
 // GET single category (public)
@@ -53,7 +55,11 @@ export const PUT = withAdminAuth(async (req: NextRequest, userId: string) => {
 
     const body = await req.json();
     const { createRedirect, oldSlug, ...categoryData } = body;
+    console.log("📥 Update category request body:", body);
+    console.log("🔍 Meta fields in request:", { metaTitle: body.metaTitle, metaDescription: body.metaDescription });
     const validatedData = categoryUpdateSchema.parse(categoryData);
+    console.log("✅ Validated category data:", validatedData);
+    console.log("🔍 Meta fields after validation:", { metaTitle: validatedData.metaTitle, metaDescription: validatedData.metaDescription });
 
     // Create redirect if requested and slug changed
     if (createRedirect && oldSlug && validatedData.slug && oldSlug !== validatedData.slug) {

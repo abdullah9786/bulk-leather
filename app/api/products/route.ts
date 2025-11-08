@@ -29,6 +29,8 @@ const productSchema = z.object({
   colors: z.array(z.string()),
   sizes: z.array(z.string()).optional(),
   isActive: z.boolean().optional(),
+  metaTitle: z.string().max(60).optional().nullable().transform(val => val || undefined),
+  metaDescription: z.string().max(160).optional().nullable().transform(val => val || undefined),
 });
 
 // GET all products (public)
@@ -80,7 +82,11 @@ export const POST = withAdminAuth(async (req: NextRequest) => {
     await connectDB();
 
     const body = await req.json();
+    console.log("📥 Received body in POST:", body);
+    console.log("🔍 Meta fields received:", { metaTitle: body.metaTitle, metaDescription: body.metaDescription });
     const validatedData = productSchema.parse(body);
+    console.log("✅ Validated data:", validatedData);
+    console.log("🔍 Meta fields after validation:", { metaTitle: validatedData.metaTitle, metaDescription: validatedData.metaDescription });
 
     // Auto-generate slug if not provided
     if (!validatedData.slug) {

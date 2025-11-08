@@ -18,6 +18,8 @@ export interface Product {
   isActive?: boolean;
   createdAt?: Date;
   updatedAt?: Date;
+  metaTitle?: string;
+  metaDescription?: string;
 }
 
 export interface Category {

@@ -21,6 +21,8 @@ export function CategoryModal({ isOpen, onClose, onSuccess, category, mode }: Ca
     description: "",
     image: "",
     isActive: true,
+    metaTitle: "",
+    metaDescription: "",
   });
   const [loading, setLoading] = useState(false);
   const [slugTouched, setSlugTouched] = useState(false);
@@ -50,6 +52,8 @@ export function CategoryModal({ isOpen, onClose, onSuccess, category, mode }: Ca
           description: category.description || "",
           image: category.image || "",
           isActive: category.isActive !== false,
+          metaTitle: category.metaTitle || "",
+          metaDescription: category.metaDescription || "",
         });
         setOriginalSlug(category.slug || "");
         setSlugTouched(false); // Allow auto-generation even when editing
@@ -115,6 +119,10 @@ export function CategoryModal({ isOpen, onClose, onSuccess, category, mode }: Ca
         payload.oldSlug = originalSlug;
       }
 
+      console.log("📤 Sending category data:", payload);
+      console.log("🔍 SEO Meta Title being sent:", payload.metaTitle);
+      console.log("🔍 SEO Meta Description being sent:", payload.metaDescription);
+
       const response = await fetch(url, {
         method,
         headers: {
@@ -151,6 +159,8 @@ export function CategoryModal({ isOpen, onClose, onSuccess, category, mode }: Ca
       description: "",
       image: "",
       isActive: true,
+      metaTitle: "",
+      metaDescription: "",
     });
     setSlugTouched(false);
     setOriginalSlug("");
@@ -233,6 +243,30 @@ export function CategoryModal({ isOpen, onClose, onSuccess, category, mode }: Ca
             required
             placeholder="https://images.unsplash.com/photo-xxx"
           />
+
+          {/* SEO Fields */}
+          <div className="pt-4 border-t">
+            <h3 className="text-lg font-semibold mb-4 text-gray-700">SEO Settings (Optional)</h3>
+            
+            <Input
+              label="Meta Title"
+              value={formData.metaTitle}
+              onChange={(e) => setFormData({ ...formData, metaTitle: e.target.value })}
+              placeholder="Custom SEO title (defaults to category name)"
+              helperText={`${formData.metaTitle.length}/60 characters. Leave empty to use category name.`}
+              maxLength={60}
+            />
+
+            <Textarea
+              label="Meta Description"
+              value={formData.metaDescription}
+              onChange={(e) => setFormData({ ...formData, metaDescription: e.target.value })}
+              rows={3}
+              placeholder="Custom SEO description (defaults to category description)"
+              helperText={`${formData.metaDescription.length}/160 characters. Leave empty to use category description.`}
+              maxLength={160}
+            />
+          </div>
 
           <div className="flex items-center gap-2">
             <input

@@ -30,6 +30,8 @@ export function ProductModal({ isOpen, onClose, onSuccess, product, mode }: Prod
     colors: "",
     sizes: "",
     isActive: true,
+    metaTitle: "",
+    metaDescription: "",
   });
   const [loading, setLoading] = useState(false);
   const [slugTouched, setSlugTouched] = useState(false);
@@ -64,6 +66,8 @@ export function ProductModal({ isOpen, onClose, onSuccess, product, mode }: Prod
       colors: "",
       sizes: "",
       isActive: true,
+      metaTitle: "",
+      metaDescription: "",
     });
     setSlugTouched(false);
     setOriginalSlug("");
@@ -93,6 +97,8 @@ export function ProductModal({ isOpen, onClose, onSuccess, product, mode }: Prod
           colors: product.colors?.join(", ") || "",
           sizes: product.sizes?.join(", ") || "",
           isActive: product.isActive !== false,
+          metaTitle: product.metaTitle || "",
+          metaDescription: product.metaDescription || "",
         });
         setOriginalSlug(product.slug || "");
         setSlugTouched(false);
@@ -162,6 +168,14 @@ export function ProductModal({ isOpen, onClose, onSuccess, product, mode }: Prod
         isActive: formData.isActive,
       };
 
+      // Only include meta fields if they have values
+      if (formData.metaTitle && formData.metaTitle.trim()) {
+        productData.metaTitle = formData.metaTitle.trim();
+      }
+      if (formData.metaDescription && formData.metaDescription.trim()) {
+        productData.metaDescription = formData.metaDescription.trim();
+      }
+
       // If slug changed and redirect option is shown, include redirect flag
       if (showRedirectOption && createRedirect && originalSlug !== formData.slug) {
         productData.createRedirect = true;
@@ -170,6 +184,8 @@ export function ProductModal({ isOpen, onClose, onSuccess, product, mode }: Prod
       
       console.log("📤 Sending product data:", productData);
       console.log("💰 Sample Price being sent:", productData.samplePrice);
+      console.log("🔍 SEO Meta Title being sent:", productData.metaTitle);
+      console.log("🔍 SEO Meta Description being sent:", productData.metaDescription);
 
       const url = mode === "edit" ? `/api/products/${product._id}` : "/api/products";
       const method = mode === "edit" ? "PUT" : "POST";
@@ -352,6 +368,30 @@ export function ProductModal({ isOpen, onClose, onSuccess, product, mode }: Prod
             rows={4}
             placeholder="Full-grain Italian leather\nMultiple compartments\nBrass hardware"
           />
+
+          {/* SEO Fields */}
+          <div className="pt-4 border-t">
+            <h3 className="text-lg font-semibold mb-4 text-gray-700">SEO Settings (Optional)</h3>
+            
+            <Input
+              label="Meta Title"
+              value={formData.metaTitle}
+              onChange={(e) => setFormData({ ...formData, metaTitle: e.target.value })}
+              placeholder="Custom SEO title (defaults to product name)"
+              helperText={`${formData.metaTitle.length}/60 characters. Leave empty to use product name.`}
+              maxLength={60}
+            />
+
+            <Textarea
+              label="Meta Description"
+              value={formData.metaDescription}
+              onChange={(e) => setFormData({ ...formData, metaDescription: e.target.value })}
+              rows={3}
+              placeholder="Custom SEO description (defaults to product description)"
+              helperText={`${formData.metaDescription.length}/160 characters. Leave empty to use product description.`}
+              maxLength={160}
+            />
+          </div>
 
           <div className="flex items-center gap-2">
             <input

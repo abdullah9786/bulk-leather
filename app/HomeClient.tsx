@@ -131,7 +131,7 @@ export default function HomePage() {
               transition={{ delay: 0.6, duration: 0.8 }}
               className="flex flex-wrap gap-4"
             >
-              <SchedulerButton size="lg" defaultMeetingType="consultation">
+              <SchedulerButton size="lg" defaultMeetingType="general">
                 Schedule Consultation
               </SchedulerButton>
               <Link href="/products">
@@ -144,7 +144,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Features Section */}
+      {/* Features Section - USPs */}
       <section className="py-20 bg-[var(--color-secondary)]">
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
@@ -170,232 +170,6 @@ export default function HomePage() {
                 </h3>
                 <p className="text-[var(--color-body)]">{feature.description}</p>
               </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Featured Products - Wholesale Details Section */}
-      <section className="py-20">
-        <div className="container mx-auto px-4">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="text-center mb-12"
-          >
-            <h2 className="text-4xl md:text-5xl font-serif text-[var(--color-text)] mb-4">
-              Featured <span className="text-gradient">Wholesale Products</span>
-            </h2>
-            <p className="text-lg text-[var(--color-body)] max-w-3xl mx-auto">
-              Explore our most popular wholesale items, carefully selected for their exceptional 
-              quality, competitive pricing, and consistent demand. Each product comes with flexible 
-              minimum order quantities and volume-based discounts.
-            </p>
-          </motion.div>
-
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
-            {loading ? (
-              <div className="col-span-2 flex justify-center py-12">
-                <div className="w-12 h-12 border-4 border-[var(--color-accent)] border-t-transparent rounded-full animate-spin" />
-              </div>
-            ) : products.slice(0, 4).map((product, index) => {
-              const productId = (product as any)._id || product.id;
-              const productSlug = product.slug || productId;
-              return (
-                <motion.div
-                  key={productId}
-                  initial={{ opacity: 0, y: 30 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: index * 0.1, duration: 0.6 }}
-                >
-                  <Card className="group cursor-pointer overflow-hidden p-0 h-full">
-                    <div className="flex flex-col md:flex-row h-full">
-                      {/* Product Image */}
-                      <div className="relative w-full md:w-2/5 h-64 md:h-auto flex-shrink-0">
-                        <Image
-                          src={product.images[0]}
-                          alt={product.name}
-                          fill
-                          className="object-cover group-hover:scale-110 transition-transform duration-500"
-                        />
-                        <div className="absolute top-4 left-4 bg-[var(--color-accent)] text-[var(--color-text)] px-3 py-1 rounded-full text-xs font-bold">
-                          WHOLESALE
-                        </div>
-                      </div>
-
-                      {/* Product Details */}
-                      <div className="flex-1 p-6 flex flex-col">
-                        <div className="mb-3">
-                          <span className="text-xs font-semibold text-[var(--color-accent)] uppercase tracking-wider">
-                            {product.category}
-                          </span>
-                          <h3 className="text-2xl font-serif text-[var(--color-text)] mt-1 mb-2 group-hover:text-[var(--color-accent)] transition-colors">
-                            {product.name}
-                          </h3>
-                          <p className="text-[var(--color-body)] text-sm leading-relaxed line-clamp-2">
-                            {product.description}
-                          </p>
-                        </div>
-
-                        {/* Wholesale Details */}
-                        <div className="space-y-3 mb-4 flex-1">
-                          <div className="flex items-center gap-2">
-                            <Package className="w-4 h-4 text-[var(--color-accent)]" />
-                            <span className="text-sm text-[var(--color-body)]">
-                              <strong className="text-[var(--color-text)]">MOQ:</strong> {product.moq} units
-                            </span>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <TrendingDown className="w-4 h-4 text-[var(--color-accent)]" />
-                            <span className="text-sm text-[var(--color-body)]">
-                              <strong className="text-[var(--color-text)]">Wholesale Price:</strong> {product.priceRange}
-                            </span>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <CheckCircle className="w-4 h-4 text-[var(--color-accent)]" />
-                            <span className="text-sm text-[var(--color-body)]">
-                              <strong className="text-[var(--color-text)]">Material:</strong> {product.material}
-                            </span>
-                          </div>
-                          <div className="flex items-start gap-2">
-                            <Star className="w-4 h-4 text-[var(--color-accent)] mt-0.5" />
-                            <span className="text-sm text-[var(--color-body)]">
-                              <strong className="text-[var(--color-text)]">Colors:</strong> {product.colors.join(", ")}
-                            </span>
-                          </div>
-                        </div>
-
-                        {/* Wholesale Benefits */}
-                        <div className="bg-[var(--color-secondary)] rounded-lg p-4 mb-4">
-                          <p className="text-xs font-semibold text-[var(--color-accent)] mb-2 uppercase">
-                            Wholesale Benefits
-                          </p>
-                          <ul className="space-y-1 text-xs text-[var(--color-body)]">
-                            <li>✓ Volume discounts on orders over 100 units</li>
-                            <li>✓ Free shipping on bulk orders (200+ units)</li>
-                            <li>✓ Custom branding and packaging available</li>
-                            <li>✓ Dedicated account manager support</li>
-                          </ul>
-                        </div>
-
-                        {/* CTA Buttons */}
-                        <div className="grid grid-cols-2 gap-3">
-                          <Link href={`/products/${productSlug}`} className="w-full">
-                            <Button variant="primary" size="sm" className="w-full h-10 group whitespace-nowrap">
-                              Get Quote
-                              <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                            </Button>
-                          </Link>
-                          <Link href={`/products/${productSlug}`} className="w-full">
-                            <Button variant="outline" size="sm" className="w-full h-10 group whitespace-nowrap">
-                              View Details
-                              <Package className="ml-2 w-4 h-4" />
-                            </Button>
-                          </Link>
-                        </div>
-                      </div>
-                    </div>
-                  </Card>
-                </motion.div>
-              );
-            })}
-          </div>
-
-          {/* Wholesale Advantages */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="bg-[var(--color-accent)]/10 rounded-2xl p-8 border-2 border-[var(--color-accent)]/30"
-          >
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              <div className="text-center">
-                <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-[var(--color-accent)] mb-3">
-                  <TrendingDown className="w-6 h-6 text-[var(--color-text)]" />
-                </div>
-                <h4 className="font-semibold text-[var(--color-text)] mb-2">Competitive Wholesale Pricing</h4>
-                <p className="text-sm text-[var(--color-body)]">
-                  Up to 40% off retail prices for bulk orders. Tiered pricing structure rewards larger volumes.
-                </p>
-              </div>
-              <div className="text-center">
-                <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-[var(--color-accent)] mb-3">
-                  <Package className="w-6 h-6 text-[var(--color-text)]" />
-                </div>
-                <h4 className="font-semibold text-[var(--color-text)] mb-2">Flexible MOQ Options</h4>
-                <p className="text-sm text-[var(--color-body)]">
-                  Start with MOQs as low as 30 units. Mix and match products to meet minimums.
-                </p>
-              </div>
-              <div className="text-center">
-                <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-[var(--color-accent)] mb-3">
-                  <BadgeCheck className="w-6 h-6 text-[var(--color-text)]" />
-                </div>
-                <h4 className="font-semibold text-[var(--color-text)] mb-2">Quality Guarantee</h4>
-                <p className="text-sm text-[var(--color-body)]">
-                  Every wholesale order includes our 90-day quality guarantee and free replacement for defects.
-                </p>
-              </div>
-            </div>
-          </motion.div>
-
-          {/* View All CTA */}
-          <div className="text-center mt-10">
-            <Link href="/products">
-              <Button size="lg" variant="outline">
-                View Complete Product Catalog
-                <ArrowRight className="ml-2 w-5 h-5" />
-              </Button>
-            </Link>
-          </div>
-        </div>
-      </section>
-
-      {/* Featured Categories */}
-      <section className="py-20">
-        <div className="container mx-auto px-4">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="text-center mb-12"
-          >
-            <h2 className="text-4xl md:text-5xl font-serif text-[var(--color-text)] mb-4">
-              Explore Our Categories
-            </h2>
-            <p className="text-lg text-[var(--color-body)] max-w-2xl mx-auto">
-              From timeless classics to contemporary designs, discover our comprehensive 
-              range of premium leather products.
-            </p>
-          </motion.div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {loading ? (
-              <div className="col-span-3 flex justify-center py-12">
-                <div className="w-12 h-12 border-4 border-[var(--color-accent)] border-t-transparent rounded-full animate-spin" />
-              </div>
-            ) : categories.map((category, index) => (
-              <Link key={category._id || category.id} href={`/categories/${category.slug}`}>
-                <Card className="group cursor-pointer overflow-hidden p-0">
-                  <div className="relative h-64 overflow-hidden">
-                    <Image
-                      src={category.image}
-                      alt={category.name}
-                      fill
-                      className="object-cover group-hover:scale-110 transition-transform duration-500"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-                    <div className="absolute bottom-0 left-0 right-0 p-6">
-                      <h3 className="text-2xl font-serif text-white mb-2">
-                        {category.name}
-                      </h3>
-                      <p className="text-white/90 text-sm">{category.description}</p>
-                    </div>
-                  </div>
-                </Card>
-              </Link>
             ))}
           </div>
         </div>
@@ -653,11 +427,59 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Customization Services Section */}
+      {/* Explore Our Categories */}
+      <section className="py-20">
+        <div className="container mx-auto px-4">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="text-center mb-12"
+          >
+            <h2 className="text-4xl md:text-5xl font-serif text-[var(--color-text)] mb-4">
+              Explore Our Categories
+            </h2>
+            <p className="text-lg text-[var(--color-body)] max-w-2xl mx-auto">
+              From timeless classics to contemporary designs, discover our comprehensive 
+              range of premium leather products.
+            </p>
+          </motion.div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {loading ? (
+              <div className="col-span-3 flex justify-center py-12">
+                <div className="w-12 h-12 border-4 border-[var(--color-accent)] border-t-transparent rounded-full animate-spin" />
+              </div>
+            ) : categories.map((category, index) => (
+              <Link key={category._id || category.id} href={`/categories/${category.slug}`}>
+                <Card className="group cursor-pointer overflow-hidden p-0">
+                  <div className="relative h-64 overflow-hidden">
+                    <Image
+                      src={category.image}
+                      alt={category.name}
+                      fill
+                      className="object-cover group-hover:scale-110 transition-transform duration-500"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+                    <div className="absolute bottom-0 left-0 right-0 p-6">
+                      <h3 className="text-2xl font-serif text-white mb-2">
+                        {category.name}
+                      </h3>
+                      <p className="text-white/90 text-sm">{category.description}</p>
+                    </div>
+                  </div>
+                </Card>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Customization Services Section - Our Custom Manufacturing Process - HIDDEN FOR FUTURE USE */}
+      {/* 
       <section className="py-20">
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-            {/* Left - Content */}
             <motion.div
               initial={{ opacity: 0, x: -30 }}
               whileInView={{ opacity: 1, x: 0 }}
@@ -685,7 +507,6 @@ export default function HomePage() {
                 stand out in the market.
               </p>
 
-              {/* Customization Features */}
               <div className="space-y-4 mb-8">
                 {[
                   {
@@ -747,7 +568,6 @@ export default function HomePage() {
               </div>
             </motion.div>
 
-            {/* Right - Image Grid */}
             <motion.div
               initial={{ opacity: 0, x: 30 }}
               whileInView={{ opacity: 1, x: 0 }}
@@ -814,7 +634,6 @@ export default function HomePage() {
             </motion.div>
           </div>
 
-          {/* Custom Process Timeline */}
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -846,7 +665,7 @@ export default function HomePage() {
             </div>
           </motion.div>
         </div>
-      </section>
+      </section> */}
 
       {/* Stats & Achievements Section */}
       <section className="py-20 bg-[var(--color-accent)]">
@@ -1102,6 +921,184 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* Featured Products - Wholesale Details Section */}
+      {/* <section className="py-20 bg-[var(--color-secondary)]">
+        <div className="container mx-auto px-4">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="text-center mb-12"
+          >
+            <h2 className="text-4xl md:text-5xl font-serif text-[var(--color-text)] mb-4">
+              Featured <span className="text-gradient">Wholesale Products</span>
+            </h2>
+            <p className="text-lg text-[var(--color-body)] max-w-3xl mx-auto">
+              Explore our most popular wholesale items, carefully selected for their exceptional 
+              quality, competitive pricing, and consistent demand. Each product comes with flexible 
+              minimum order quantities and volume-based discounts.
+            </p>
+          </motion.div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
+            {loading ? (
+              <div className="col-span-2 flex justify-center py-12">
+                <div className="w-12 h-12 border-4 border-[var(--color-accent)] border-t-transparent rounded-full animate-spin" />
+              </div>
+            ) : products.slice(0, 4).map((product, index) => {
+              const productId = (product as any)._id || product.id;
+              const productSlug = product.slug || productId;
+              return (
+                <motion.div
+                  key={productId}
+                  initial={{ opacity: 0, y: 30 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: index * 0.1, duration: 0.6 }}
+                >
+                  <Card className="group cursor-pointer overflow-hidden p-0 h-full">
+                    <div className="flex flex-col md:flex-row h-full">
+                      {/* Product Image *\/}
+                      <div className="relative w-full md:w-2/5 h-64 md:h-auto flex-shrink-0">
+                        <Image
+                          src={product.images[0]}
+                          alt={product.name}
+                          fill
+                          className="object-cover group-hover:scale-110 transition-transform duration-500"
+                        />
+                        <div className="absolute top-4 left-4 bg-[var(--color-accent)] text-[var(--color-text)] px-3 py-1 rounded-full text-xs font-bold">
+                          WHOLESALE
+                        </div>
+                      </div>
+
+                      {/* Product Details *\/}
+                      <div className="flex-1 p-6 flex flex-col">
+                        <div className="mb-3">
+                          <span className="text-xs font-semibold text-[var(--color-accent)] uppercase tracking-wider">
+                            {product.category}
+                          </span>
+                          <h3 className="text-2xl font-serif text-[var(--color-text)] mt-1 mb-2 group-hover:text-[var(--color-accent)] transition-colors">
+                            {product.name}
+                          </h3>
+                          <p className="text-[var(--color-body)] text-sm leading-relaxed line-clamp-2">
+                            {product.description}
+                          </p>
+                        </div>
+
+                        {/* Wholesale Details *\/}
+                        <div className="space-y-3 mb-4 flex-1">
+                          <div className="flex items-center gap-2">
+                            <Package className="w-4 h-4 text-[var(--color-accent)]" />
+                            <span className="text-sm text-[var(--color-body)]">
+                              <strong className="text-[var(--color-text)]">MOQ:</strong> {product.moq} units
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <TrendingDown className="w-4 h-4 text-[var(--color-accent)]" />
+                            <span className="text-sm text-[var(--color-body)]">
+                              <strong className="text-[var(--color-text)]">Wholesale Price:</strong> {product.priceRange}
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <CheckCircle className="w-4 h-4 text-[var(--color-accent)]" />
+                            <span className="text-sm text-[var(--color-body)]">
+                              <strong className="text-[var(--color-text)]">Material:</strong> {product.material}
+                            </span>
+                          </div>
+                          <div className="flex items-start gap-2">
+                            <Star className="w-4 h-4 text-[var(--color-accent)] mt-0.5" />
+                            <span className="text-sm text-[var(--color-body)]">
+                              <strong className="text-[var(--color-text)]">Colors:</strong> {product.colors.join(", ")}
+                            </span>
+                          </div>
+                        </div>
+
+                        {/* Wholesale Benefits *\/}
+                        <div className="bg-[var(--color-card)] rounded-lg p-4 mb-4">
+                          <p className="text-xs font-semibold text-[var(--color-accent)] mb-2 uppercase">
+                            Wholesale Benefits
+                          </p>
+                          <ul className="space-y-1 text-xs text-[var(--color-body)]">
+                            <li>✓ Volume discounts on orders over 100 units</li>
+                            <li>✓ Free shipping on bulk orders (200+ units)</li>
+                            <li>✓ Custom branding and packaging available</li>
+                            <li>✓ Dedicated account manager support</li>
+                          </ul>
+                        </div>
+
+                        {/* CTA Buttons *\/}
+                        <div className="grid grid-cols-2 gap-3">
+                          <Link href={`/products/${productSlug}`} className="w-full">
+                            <Button variant="primary" size="sm" className="w-full h-10 group whitespace-nowrap">
+                              Get Quote
+                              <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                            </Button>
+                          </Link>
+                          <Link href={`/products/${productSlug}`} className="w-full">
+                            <Button variant="outline" size="sm" className="w-full h-10 group whitespace-nowrap">
+                              View Details
+                              <Package className="ml-2 w-4 h-4" />
+                            </Button>
+                          </Link>
+                        </div>
+                      </div>
+                    </div>
+                  </Card>
+                </motion.div>
+              );
+            })}
+          </div>
+
+          {/* Wholesale Advantages *\/}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="bg-[var(--color-accent)]/10 rounded-2xl p-8 border-2 border-[var(--color-accent)]/30"
+          >
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              <div className="text-center">
+                <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-[var(--color-accent)] mb-3">
+                  <TrendingDown className="w-6 h-6 text-[var(--color-text)]" />
+                </div>
+                <h4 className="font-semibold text-[var(--color-text)] mb-2">Competitive Wholesale Pricing</h4>
+                <p className="text-sm text-[var(--color-body)]">
+                  Up to 40% off retail prices for bulk orders. Tiered pricing structure rewards larger volumes.
+                </p>
+              </div>
+              <div className="text-center">
+                <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-[var(--color-accent)] mb-3">
+                  <Package className="w-6 h-6 text-[var(--color-text)]" />
+                </div>
+                <h4 className="font-semibold text-[var(--color-text)] mb-2">Flexible MOQ Options</h4>
+                <p className="text-sm text-[var(--color-body)]">
+                  Start with MOQs as low as 30 units. Mix and match products to meet minimums.
+                </p>
+              </div>
+              <div className="text-center">
+                <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-[var(--color-accent)] mb-3">
+                  <BadgeCheck className="w-6 h-6 text-[var(--color-text)]" />
+                </div>
+                <h4 className="font-semibold text-[var(--color-text)] mb-2">Quality Guarantee</h4>
+                <p className="text-sm text-[var(--color-body)]">
+                  Every wholesale order includes our 90-day quality guarantee and free replacement for defects.
+                </p>
+              </div>
+            </div>
+          </motion.div>
+
+          {/* View All CTA *\/}
+          <div className="text-center mt-10">
+            <Link href="/products">
+              <Button size="lg" variant="outline">
+                View Complete Product Catalog
+                <ArrowRight className="ml-2 w-5 h-5" />
+              </Button>
+            </Link>
+          </div>
+        </div>
+      </section> */}
+
       {/* CTA Section */}
       <section className="py-20 bg-[var(--color-accent)]">
         <div className="container mx-auto px-4 text-center">
@@ -1121,7 +1118,7 @@ export default function HomePage() {
               <SchedulerButton 
                 size="lg" 
                 variant="secondary"
-                defaultMeetingType="consultation"
+                defaultMeetingType="general"
               >
                 Schedule Meeting
               </SchedulerButton>

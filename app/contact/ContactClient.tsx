@@ -290,8 +290,7 @@ export default function ContactPage() {
                     { value: "bulk", label: "Bulk Order Inquiry" },
                     { value: "sample", label: "Sample Request" },
                     { value: "general", label: "General Question" },
-                    { value: "partnership", label: "Partnership Opportunity" },
-                    { value: "support", label: "Customer Support" },
+                    { value: "custom", label: "Custom Manufacturing" },
                   ]}
                 />
 

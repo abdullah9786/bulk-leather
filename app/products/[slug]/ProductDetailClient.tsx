@@ -102,15 +102,23 @@ export default function ProductDetailClient({ slug: productSlug }: Props) {
     e.preventDefault();
     
     try {
-      const response = await fetch("/api/contact", {
+      const response = await fetch("/api/inquiries", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          ...formData,
-          type: "product-inquiry",
-          productName: product?.name,
+          name: formData.name,
+          email: formData.email,
+          company: formData.company,
+          phone: formData.phone,
+          inquiryType: "bulk",
+          inquirySource: "product-page",
+          productInterest: product?.name,
+          productId: product?._id,
+          message: `Quantity needed: ${formData.quantity}\n\n${formData.message}`,
         }),
       });
+
+      const data = await response.json();
 
       if (response.ok) {
         setFormSubmitted(true);
@@ -122,9 +130,13 @@ export default function ProductDetailClient({ slug: productSlug }: Props) {
           quantity: "",
           message: "",
         });
+      } else {
+        console.error("Error submitting inquiry:", data);
+        alert(data.error || "Failed to submit inquiry. Please try again.");
       }
     } catch (error) {
       console.error("Error submitting form:", error);
+      alert("Failed to submit inquiry. Please try again.");
     }
   };
 
@@ -362,10 +374,10 @@ export default function ProductDetailClient({ slug: productSlug }: Props) {
               </div>
             )}
 
-            <div className="space-y-3">
-              <SchedulerButton />
-              <Link href="/contact" className="block">
-                <Button variant="outline" className="w-full">
+            <div className="flex flex-col sm:flex-row gap-3">
+              <SchedulerButton fullWidth className="flex-1" />
+              <Link href="/contact" className="flex-1">
+                <Button variant="outline" className="w-full h-full">
                   <Mail className="w-5 h-5 mr-2" />
                   Contact Us
                 </Button>

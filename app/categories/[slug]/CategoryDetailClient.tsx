@@ -154,11 +154,6 @@ export default function CategoryDetailClient({ slug }: CategoryDetailClientProps
             <p className="text-lg md:text-xl text-[var(--color-body)] leading-relaxed">
               {category.description}
             </p>
-
-            <div className="flex items-center gap-2 mt-6 text-[var(--color-body)]">
-              <Package className="w-5 h-5" />
-              <span>{products.length} Products Available</span>
-            </div>
           </motion.div>
         </div>
       </section>

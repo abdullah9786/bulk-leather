@@ -33,7 +33,7 @@ interface SchedulerModalProps {
 export function SchedulerModal({ 
   isOpen, 
   onClose, 
-  defaultMeetingType = "consultation",
+  defaultMeetingType = "general",
   defaultMeetingMode = "video"
 }: SchedulerModalProps) {
   const { cartItems } = useCart();
@@ -44,7 +44,7 @@ export function SchedulerModal({
     company: "",
     phone: "",
     meetingType: defaultMeetingType,
-    meetingMode: defaultMeetingMode,
+    meetingMode: "video", // Always Google Meet
     date: "",
     timeSlot: "",
     message: "",
@@ -72,7 +72,7 @@ export function SchedulerModal({
         company: "",
         phone: "",
         meetingType: defaultMeetingType,
-        meetingMode: defaultMeetingMode,
+        meetingMode: "video", // Always Google Meet
         date: "",
         timeSlot: "",
         message: "",
@@ -89,11 +89,10 @@ export function SchedulerModal({
   }, [isOpen, defaultMeetingType, defaultMeetingMode]);
 
   const meetingTypes = [
-    { value: "consultation", label: "General Consultation" },
-    { value: "product", label: "Product Discussion" },
+    { value: "bulk", label: "Bulk Order Inquiry" },
+    { value: "sample", label: "Sample Request" },
+    { value: "general", label: "General Question" },
     { value: "custom", label: "Custom Manufacturing" },
-    { value: "samples", label: "Sample Review" },
-    { value: "partnership", label: "Partnership Opportunity" },
   ];
 
   const meetingModes = [
@@ -408,45 +407,20 @@ export function SchedulerModal({
                       />
                     </div>
 
-                    <div>
-                      <h3 className="text-xl font-semibold text-[var(--color-text)] mb-4">
-                        How would you like to meet?
-                      </h3>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        {meetingModes.map((mode) => (
-                          <button
-                            key={mode.value}
-                            type="button"
-                            onClick={() => setFormData({ ...formData, meetingMode: mode.value })}
-                            className={`p-4 rounded-xl border-2 transition-all text-left ${
-                              formData.meetingMode === mode.value
-                                ? "border-[var(--color-accent)] bg-[var(--color-accent)]/10"
-                                : "border-[var(--color-secondary)] hover:border-[var(--color-accent)]/50"
-                            }`}
-                          >
-                            <div className="flex items-start gap-3">
-                              <div className={`p-2 rounded-lg ${
-                                formData.meetingMode === mode.value
-                                  ? "bg-[var(--color-accent)]"
-                                  : "bg-[var(--color-secondary)]"
-                              }`}>
-                                <mode.icon className={`w-5 h-5 ${
-                                  formData.meetingMode === mode.value
-                                    ? "text-[var(--color-text)]"
-                                    : "text-[var(--color-body)]"
-                                }`} />
-                              </div>
-                              <div>
-                                <div className="font-semibold text-[var(--color-text)] mb-1">
-                                  {mode.label}
-                                </div>
-                                <div className="text-sm text-[var(--color-body)]">
-                                  {mode.description}
-                                </div>
-                              </div>
-                            </div>
-                          </button>
-                        ))}
+                    {/* Meeting via Google Meet - Info Box */}
+                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                      <div className="flex items-start gap-3">
+                        <div className="p-2 rounded-lg bg-blue-500">
+                          <Video className="w-5 h-5 text-white" />
+                        </div>
+                        <div className="flex-1">
+                          <div className="font-semibold text-blue-900 mb-1">
+                            Video Meeting via Google Meet
+                          </div>
+                          <div className="text-sm text-blue-700">
+                            A Google Meet link will be automatically generated and sent to your email
+                          </div>
+                        </div>
                       </div>
                     </div>
 
@@ -488,6 +462,7 @@ export function SchedulerModal({
                       className="w-full"
                       onClick={() => setStep(2)}
                     >
+                      <Calendar className="mr-2 w-5 h-5" />
                       Continue to Date & Time
                     </Button>
                   </motion.div>
@@ -666,12 +641,9 @@ export function SchedulerModal({
                           <span className="text-[var(--color-body)]">{formData.timeSlot} EST (30 minutes)</span>
                         </div>
                         <div className="flex items-center gap-2">
-                          {React.createElement(
-                            meetingModes.find(m => m.value === formData.meetingMode)?.icon || Video,
-                            { className: "w-4 h-4 text-[var(--color-accent)]" }
-                          )}
+                          <Video className="w-4 h-4 text-[var(--color-accent)]" />
                           <span className="text-[var(--color-body)]">
-                            {meetingModes.find(m => m.value === formData.meetingMode)?.label}
+                            Google Meet (Video)
                           </span>
                         </div>
                       </div>

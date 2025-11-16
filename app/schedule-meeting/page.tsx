@@ -22,32 +22,36 @@ import {
 export default function ScheduleMeetingPage() {
   const meetingTypes = [
     {
-      icon: Users,
-      title: "General Consultation",
-      description: "Discuss your wholesale needs, pricing, and partnership opportunities",
+      icon: PackageIcon,
+      title: "Bulk Order Inquiry",
+      description: "Discuss large quantity orders, wholesale pricing, and delivery timelines",
       duration: "30 minutes",
       color: "bg-blue-50 border-blue-200 text-blue-700",
+      value: "bulk",
     },
     {
-      icon: PackageIcon,
-      title: "Product Discussion",
-      description: "Detailed review of specific products, materials, and bulk order requirements",
-      duration: "30 minutes",
+      icon: CheckCircle,
+      title: "Sample Request",
+      description: "Review sample quality and discuss bulk orders after evaluation",
+      duration: "20 minutes",
       color: "bg-purple-50 border-purple-200 text-purple-700",
+      value: "sample",
+    },
+    {
+      icon: Users,
+      title: "General Question",
+      description: "Ask questions about our products, services, or wholesale opportunities",
+      duration: "15 minutes",
+      color: "bg-green-50 border-green-200 text-green-700",
+      value: "general",
     },
     {
       icon: Sparkles,
       title: "Custom Manufacturing",
       description: "Explore custom design options, branding, and private label opportunities",
       duration: "45 minutes",
-      color: "bg-green-50 border-green-200 text-green-700",
-    },
-    {
-      icon: CheckCircle,
-      title: "Sample Review",
-      description: "Review sample quality, discuss bulk orders after sample evaluation",
-      duration: "20 minutes",
       color: "bg-orange-50 border-orange-200 text-orange-700",
+      value: "custom",
     },
   ];
 
@@ -91,18 +95,13 @@ export default function ScheduleMeetingPage() {
     },
     {
       number: "03",
-      title: "Select Meeting Mode",
-      description: "Google Meet, phone call, WhatsApp, or in-person visit",
+      title: "Provide Your Details",
+      description: "Enter your contact information and any specific topics you'd like to discuss",
     },
     {
       number: "04",
-      title: "Confirm Details",
-      description: "Provide your contact information and any specific topics",
-    },
-    {
-      number: "05",
       title: "Get Confirmation",
-      description: "Receive email with meeting details and Google Meet link (if video)",
+      description: "Receive email with meeting details and Google Meet link instantly",
     },
   ];
 
@@ -126,7 +125,7 @@ export default function ScheduleMeetingPage() {
               Book a free consultation with our wholesale team. Discuss your requirements, 
               get pricing details, and explore partnership opportunities.
             </p>
-            <SchedulerButton size="lg" defaultMeetingType="consultation">
+            <SchedulerButton size="lg" defaultMeetingType="general">
               Schedule Your Meeting Now
             </SchedulerButton>
           </motion.div>
@@ -157,8 +156,8 @@ export default function ScheduleMeetingPage() {
                 viewport={{ once: true }}
                 transition={{ delay: index * 0.1 }}
               >
-                <Card className={`border-2 ${type.color.split(' ')[1]}`}>
-                  <div className="flex items-start gap-4">
+                <Card className={`border-2 ${type.color.split(' ')[1]} h-full flex flex-col`}>
+                  <div className="flex items-start gap-4 flex-1">
                     <div className={`p-3 ${type.color.split(' ')[0]} rounded-lg`}>
                       <type.icon className={`w-6 h-6 ${type.color.split(' ')[2]}`} />
                     </div>
@@ -169,11 +168,21 @@ export default function ScheduleMeetingPage() {
                       <p className="text-sm text-[var(--color-body)] mb-3">
                         {type.description}
                       </p>
-                      <div className="flex items-center gap-2 text-sm text-[var(--color-body)]">
+                      <div className="flex items-center gap-2 text-sm text-[var(--color-body)] mb-4">
                         <Clock className="w-4 h-4" />
                         <span>{type.duration}</span>
                       </div>
                     </div>
+                  </div>
+                  <div className="mt-4 pt-4 border-t border-[var(--color-secondary)]">
+                    <SchedulerButton 
+                      variant="outline" 
+                      size="sm"
+                      className="w-full"
+                      defaultMeetingType={type.value}
+                    >
+                      Schedule {type.title}
+                    </SchedulerButton>
                   </div>
                 </Card>
               </motion.div>
@@ -181,79 +190,44 @@ export default function ScheduleMeetingPage() {
           </div>
         </section>
 
-        {/* Meeting Modes */}
-        <section className="mb-20 bg-[var(--color-secondary)] rounded-3xl p-8 md:p-12">
+        {/* Google Meet - Single Meeting Mode */}
+        <section className="mb-20 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-3xl p-8 md:p-12 border-2 border-blue-200">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="text-center mb-12"
+            className="text-center max-w-3xl mx-auto"
           >
+            <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-blue-500 mb-6">
+              <Video className="w-10 h-10 text-white" />
+            </div>
             <h2 className="text-3xl md:text-4xl font-serif text-[var(--color-text)] mb-4">
-              How Would You Like to Meet?
+              Meet Via Google Meet
             </h2>
-            <p className="text-lg text-[var(--color-body)] max-w-2xl mx-auto">
-              Choose your preferred meeting mode for maximum convenience
+            <p className="text-lg text-[var(--color-body)] mb-6">
+              All meetings are conducted via Google Meet for the best video conferencing experience. 
+              A meeting link will be automatically generated and sent to your email upon confirmation.
             </p>
-          </motion.div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {meetingModes.map((mode, index) => {
-              // Map meeting mode titles to meeting mode values
-              const modeValueMap: { [key: string]: string } = {
-                "Google Meet": "video",
-                "Phone Call": "phone",
-                "WhatsApp": "whatsapp",
-                "In-Person": "inperson"
-              };
-              
-              return (
-                <motion.div
-                  key={index}
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: index * 0.1 }}
-                >
-                  <Card className={`text-center h-full flex flex-col ${mode.popular ? 'ring-2 ring-[var(--color-accent)]' : ''}`}>
-                    {mode.popular && (
-                      <div className="bg-[var(--color-accent)] text-[var(--color-text)] text-xs font-bold px-3 py-1 rounded-full inline-block mb-4">
-                        MOST POPULAR
-                      </div>
-                    )}
-                    <div className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-[var(--color-accent)]/10 mb-4 mx-auto">
-                      <mode.icon className="w-7 h-7 text-[var(--color-accent)]" />
-                    </div>
-                    <h4 className="font-semibold text-[var(--color-text)] mb-2">
-                      {mode.title}
-                    </h4>
-                    <p className="text-sm text-[var(--color-body)] mb-4 flex-1">
-                      {mode.description}
-                    </p>
-                    <SchedulerButton
-                      variant="outline"
-                      size="sm"
-                      className="w-full"
-                      defaultMeetingType="consultation"
-                      defaultMeetingMode={modeValueMap[mode.title]}
-                    >
-                      Schedule {mode.title.split(' ')[0]}
-                    </SchedulerButton>
-                  </Card>
-                </motion.div>
-              );
-            })}
-          </div>
-
-          {/* Additional CTA */}
-          <div className="text-center mt-10">
-            <p className="text-[var(--color-body)] mb-4">
-              Not sure which mode to choose? Start with a consultation
-            </p>
-            <SchedulerButton size="lg" defaultMeetingType="consultation">
-              Schedule General Consultation
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <div className="flex items-center gap-2 text-[var(--color-body)] bg-white/80 rounded-lg px-4 py-2">
+                <CheckCircle className="w-5 h-5 text-green-600" />
+                <span className="text-sm">HD Video Quality</span>
+              </div>
+              <div className="flex items-center gap-2 text-[var(--color-body)] bg-white/80 rounded-lg px-4 py-2">
+                <CheckCircle className="w-5 h-5 text-green-600" />
+                <span className="text-sm">Screen Sharing</span>
+              </div>
+              <div className="flex items-center gap-2 text-[var(--color-body)] bg-white/80 rounded-lg px-4 py-2">
+                <CheckCircle className="w-5 h-5 text-green-600" />
+                <span className="text-sm">No Software Required</span>
+              </div>
+            </div>
+            <div className="mt-8">
+            <SchedulerButton size="lg" defaultMeetingType="general">
+              Schedule Video Meeting
             </SchedulerButton>
-          </div>
+            </div>
+          </motion.div>
         </section>
 
         {/* Process Steps */}
@@ -265,10 +239,10 @@ export default function ScheduleMeetingPage() {
             className="text-center mb-12"
           >
             <h2 className="text-3xl md:text-4xl font-serif text-[var(--color-text)] mb-4">
-              Simple 5-Step Process
+              Simple 4-Step Process
             </h2>
             <p className="text-lg text-[var(--color-body)] max-w-2xl mx-auto">
-              Schedule your meeting in just a few clicks
+              Schedule your Google Meet video call in just a few clicks
             </p>
           </motion.div>
 
@@ -374,16 +348,16 @@ export default function ScheduleMeetingPage() {
               just expert advice for your wholesale leather needs.
             </p>
             <div className="flex flex-wrap justify-center gap-4">
-              <SchedulerButton size="lg" variant="secondary" defaultMeetingType="consultation">
-                Schedule Consultation
+              <SchedulerButton size="lg" variant="secondary" defaultMeetingType="bulk">
+                Schedule Bulk Order Inquiry
               </SchedulerButton>
               <SchedulerButton 
                 size="lg" 
                 variant="outline" 
                 className="border-[var(--color-text)] text-[var(--color-text)] hover:bg-[var(--color-text)] hover:text-[var(--color-accent)]"
-                defaultMeetingType="product"
+                defaultMeetingType="sample"
               >
-                Schedule Product Discussion
+                Request Sample Meeting
               </SchedulerButton>
             </div>
           </motion.div>

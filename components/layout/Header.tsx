@@ -14,7 +14,7 @@ import { UserMenu } from "./UserMenu";
 const navLinks = [
   { href: "/", label: "Home" },
   { href: "/products", label: "Products" },
-  { href: "/customization", label: "Customization" },
+  // { href: "/customization", label: "Customization" }, // Hidden - might need in future
   { href: "/gallery", label: "Gallery" },
   { href: "/schedule-meeting", label: "Schedule Meeting" },
   { href: "/about", label: "About" },

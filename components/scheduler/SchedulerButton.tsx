@@ -20,8 +20,8 @@ export function SchedulerButton({
   size = "md",
   className = "",
   children,
-  defaultMeetingType,
-  defaultMeetingMode,
+  defaultMeetingType = "general",
+  defaultMeetingMode = "video",
   fullWidth = false
 }: SchedulerButtonProps) {
   const [isOpen, setIsOpen] = useState(false);

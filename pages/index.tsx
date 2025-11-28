@@ -301,7 +301,7 @@ export default function HomePage({ products, categories, testimonials }: HomePag
                     <Package className="ml-2 w-5 h-5" />
                   </Button>
                 </Link>
-                <SchedulerButton size="lg" variant="outline" />
+                <SchedulerButton size="lg" variant="secondary" />
               </div>
             </div>
           </div>

@@ -20,10 +20,25 @@ import {
   Mail,
   Phone,
   ShoppingCart,
-  Sparkles
+  Sparkles,
+  Award,
+  Shield,
+  Truck,
+  ShoppingBag
 } from "lucide-react";
 import { useCart } from "@/contexts/CartContext";
 import { Product } from "@/types";
+
+interface Testimonial {
+  _id?: string;
+  id: string;
+  name: string;
+  company: string;
+  role: string;
+  content: string;
+  avatar?: string;
+  rating?: number;
+}
 
 interface Props {
   slug: string;
@@ -47,10 +62,27 @@ export default function ProductDetailClient({ slug: productSlug }: Props) {
   });
   const [formSubmitted, setFormSubmitted] = useState(false);
   const [addedToCart, setAddedToCart] = useState(false);
+  const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
+  const [testimonialsLoading, setTestimonialsLoading] = useState(true);
 
   useEffect(() => {
     fetchProduct();
+    fetchTestimonials();
   }, [productSlug]);
+
+  const fetchTestimonials = async () => {
+    try {
+      const response = await fetch("/api/testimonials?isActive=true");
+      const data = await response.json();
+      if (data.success) {
+        setTestimonials(data.data);
+      }
+    } catch (error) {
+      console.error("Error fetching testimonials:", error);
+    } finally {
+      setTestimonialsLoading(false);
+    }
+  };
 
   const fetchProduct = async () => {
     try {
@@ -386,11 +418,121 @@ export default function ProductDetailClient({ slug: productSlug }: Props) {
           </motion.div>
         </div>
 
+        {/* USP Features Section */}
+        <section className="py-16 mt-12 bg-[var(--color-secondary)] rounded-2xl">
+          <div className="container mx-auto px-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+              {[
+                { icon: Award, title: "Premium Quality", description: "Handcrafted from finest leather" },
+                { icon: Shield, title: "Quality Assured", description: "Rigorous quality control process" },
+                { icon: Truck, title: "Global Shipping", description: "Reliable worldwide delivery" },
+                { icon: ShoppingBag, title: "Flexible MOQ", description: "Minimum orders from 30 units" },
+              ].map((feature, index) => (
+                <motion.div
+                  key={index}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: index * 0.1, duration: 0.5 }}
+                  className="text-center"
+                >
+                  <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-[var(--color-accent)] mb-4">
+                    <feature.icon className="w-8 h-8 text-[var(--color-text)]" />
+                  </div>
+                  <h3 className="text-xl font-semibold text-[var(--color-text)] mb-2">
+                    {feature.title}
+                  </h3>
+                  <p className="text-[var(--color-body)]">{feature.description}</p>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* Trusted by Global Retailers - Testimonials */}
+        <section className="py-16 mt-12">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="text-center mb-12"
+          >
+            <h2 className="text-4xl md:text-5xl font-serif text-[var(--color-text)] mb-4">
+              Trusted by Global Retailers
+            </h2>
+            <p className="text-lg text-[var(--color-body)] max-w-2xl mx-auto">
+              Join hundreds of satisfied wholesale partners worldwide who trust us 
+              for their leather goods supply.
+            </p>
+          </motion.div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto">
+            {testimonialsLoading ? (
+              <div className="col-span-2 flex justify-center py-12">
+                <div className="w-12 h-12 border-4 border-[var(--color-accent)] border-t-transparent rounded-full animate-spin" />
+              </div>
+            ) : testimonials.length > 0 ? (
+              testimonials.map((testimonial, index) => (
+                <Card key={testimonial._id || testimonial.id}>
+                  <div className="mb-4">
+                    <div className="flex items-center space-x-1 mb-4">
+                      {[...Array(testimonial.rating || 5)].map((_, i) => (
+                        <svg
+                          key={i}
+                          className="w-5 h-5 fill-current text-[var(--color-accent)]"
+                          viewBox="0 0 20 20"
+                        >
+                          <path d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z" />
+                        </svg>
+                      ))}
+                    </div>
+                    <p className="text-[var(--color-body)] italic leading-relaxed">
+                      "{testimonial.content}"
+                    </p>
+                  </div>
+                  <div className="border-t border-[var(--color-secondary)] pt-4 flex items-center gap-4">
+                    {/* Avatar */}
+                    <div className="flex-shrink-0">
+                      {testimonial.avatar ? (
+                        <img
+                          src={testimonial.avatar}
+                          alt={testimonial.name}
+                          className="w-12 h-12 rounded-full object-cover"
+                        />
+                      ) : (
+                        <div className="w-12 h-12 rounded-full bg-[var(--color-accent)] flex items-center justify-center">
+                          <span className="text-[var(--color-text)] font-bold text-xl">
+                            {testimonial.name.charAt(0).toUpperCase()}
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                    
+                    {/* Info */}
+                    <div className="flex-1">
+                      <h4 className="font-semibold text-[var(--color-text)]">
+                        {testimonial.name}
+                      </h4>
+                      <p className="text-sm text-[var(--color-body)]">
+                        {testimonial.role} at {testimonial.company}
+                      </p>
+                    </div>
+                  </div>
+                </Card>
+              ))
+            ) : (
+              <div className="col-span-2 text-center py-12">
+                <p className="text-[var(--color-body)]">No testimonials available at the moment.</p>
+              </div>
+            )}
+          </div>
+        </section>
+
         {/* Inquiry Form */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="mt-20 max-w-4xl mx-auto"
+          className="mt-12 max-w-4xl mx-auto"
         >
           <Card>
             <h2 className="text-3xl font-bold text-[var(--color-text)] mb-2">

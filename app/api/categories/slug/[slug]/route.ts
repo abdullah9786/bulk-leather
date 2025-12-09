@@ -6,9 +6,10 @@ import Redirect from "@/models/Redirect";
 // GET category by slug (public)
 export async function GET(
   req: NextRequest,
-  { params }: { params: { slug: string } }
+  context: { params: Promise<{ slug: string }> }
 ) {
   try {
+    const params = await context.params;
     await connectDB();
 
     // First, try to find the category

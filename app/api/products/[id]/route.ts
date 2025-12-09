@@ -37,9 +37,10 @@ const productUpdateSchema = z.object({
 // GET single product (public)
 export async function GET(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
+    const params = await context.params;
     await connectDB();
 
     const product = await Product.findById(params.id);

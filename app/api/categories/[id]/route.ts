@@ -18,9 +18,10 @@ const categoryUpdateSchema = z.object({
 // GET single category (public)
 export async function GET(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
+    const params = await context.params;
     await connectDB();
 
     const category = await Category.findById(params.id);

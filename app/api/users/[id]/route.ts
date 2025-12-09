@@ -13,9 +13,20 @@ const updateUserSchema = z.object({
 });
 
 // PUT update user (admin only)
-export const PUT = withAdminAuth(async (req: NextRequest, { params }: { params: { id: string } }) => {
+export const PUT = withAdminAuth(async (req: NextRequest, context?: { params: Promise<{ id: string }> }) => {
   try {
     await connectDB();
+
+    // Get params - in Next.js 14+, params is a Promise
+    const params = context?.params ? await context.params : null;
+    const id = params?.id;
+
+    if (!id) {
+      return NextResponse.json(
+        { error: "User ID is required" },
+        { status: 400 }
+      );
+    }
 
     const body = await req.json();
     const validatedData = updateUserSchema.parse(body);
@@ -24,7 +35,7 @@ export const PUT = withAdminAuth(async (req: NextRequest, { params }: { params: 
     if (validatedData.email) {
       const existingUser = await User.findOne({ 
         email: validatedData.email,
-        _id: { $ne: params.id }
+        _id: { $ne: id }
       });
       if (existingUser) {
         return NextResponse.json(
@@ -46,7 +57,7 @@ export const PUT = withAdminAuth(async (req: NextRequest, { params }: { params: 
     }
 
     const user = await User.findByIdAndUpdate(
-      params.id,
+      id,
       updateData,
       { new: true, runValidators: true }
     ).select("-password");
@@ -78,15 +89,22 @@ export const PUT = withAdminAuth(async (req: NextRequest, { params }: { params: 
 });
 
 // DELETE user (admin only)
-export const DELETE = withAdminAuth(async (req: NextRequest, { params }: { params: { id: string } }) => {
+export const DELETE = withAdminAuth(async (req: NextRequest, context?: { params: Promise<{ id: string }> }) => {
   try {
     await connectDB();
 
-    // Prevent deleting yourself (optional safety check)
-    const token = req.headers.get("Authorization")?.replace("Bearer ", "");
-    // You could decode token to check if deleting self
+    // Get params - in Next.js 14+, params is a Promise
+    const params = context?.params ? await context.params : null;
+    const id = params?.id;
 
-    const user = await User.findByIdAndDelete(params.id);
+    if (!id) {
+      return NextResponse.json(
+        { error: "User ID is required" },
+        { status: 400 }
+      );
+    }
+
+    const user = await User.findByIdAndDelete(id);
 
     if (!user) {
       return NextResponse.json(

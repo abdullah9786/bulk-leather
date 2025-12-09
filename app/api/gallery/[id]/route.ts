@@ -19,9 +19,11 @@ const galleryUpdateSchema = z.object({
 // PUT update gallery item (admin only)
 export async function PUT(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
+    const params = await context.params;
+    
     // Admin authentication
     const token = req.headers.get("authorization")?.replace("Bearer ", "");
     if (!token) {
@@ -76,9 +78,11 @@ export async function PUT(
 // DELETE gallery item (admin only)
 export async function DELETE(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
+    const params = await context.params;
+    
     // Admin authentication
     const token = req.headers.get("authorization")?.replace("Bearer ", "");
     if (!token) {

@@ -192,13 +192,13 @@ export default function AdminLoginPage() {
           )}
 
           {/* Demo Credentials */}
-          {!setupNeeded && (
+          {/* {!setupNeeded && (
             <div className="mt-6 p-4 bg-amber-50 rounded-lg border border-amber-200">
               <p className="text-xs font-semibold text-amber-800 mb-2">Default Credentials:</p>
               <p className="text-xs text-amber-700">Email: admin@bulkleather.com</p>
               <p className="text-xs text-amber-700">Password: admin123</p>
             </div>
-          )}
+          )} */}
 
           {/* Back to Site */}
           <div className="mt-6 text-center">

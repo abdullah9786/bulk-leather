@@ -7,7 +7,7 @@ export interface IMeeting {
   email: string;
   company: string;
   phone: string;
-  meetingType: "consultation" | "product" | "custom" | "samples" | "partnership";
+  meetingType: "bulk" | "sample" | "general" | "custom" | "consultation" | "product" | "samples" | "partnership";
   meetingMode: "video" | "phone" | "whatsapp" | "inperson";
   date: Date;
   timeSlot: string;
@@ -53,7 +53,7 @@ const MeetingSchema = new Schema<IMeeting>(
     },
     meetingType: {
       type: String,
-      enum: ["consultation", "product", "custom", "samples", "partnership"],
+      enum: ["bulk", "sample", "general", "custom", "consultation", "product", "samples", "partnership"],
       required: true,
     },
     meetingMode: {

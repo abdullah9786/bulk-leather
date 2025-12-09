@@ -12,7 +12,7 @@ const meetingSchema = z.object({
   email: z.string().email(),
   company: z.string().min(2),
   phone: z.string(),
-  meetingType: z.enum(["consultation", "product", "custom", "samples", "partnership"]),
+  meetingType: z.enum(["bulk", "sample", "general", "custom", "consultation", "product", "samples", "partnership"]),
   meetingMode: z.enum(["video", "phone", "whatsapp", "inperson"]),
   date: z.string(),
   timeSlot: z.string(),

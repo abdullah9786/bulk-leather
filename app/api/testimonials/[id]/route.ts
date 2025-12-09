@@ -17,9 +17,10 @@ const testimonialSchema = z.object({
 // PUT update testimonial (admin only)
 export async function PUT(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
+    const params = await context.params;
     console.log("🔄 PUT /api/testimonials/[id] - Starting update");
     console.log("📝 Testimonial ID:", params.id);
     
@@ -98,9 +99,10 @@ export async function PUT(
 // DELETE testimonial (admin only)
 export async function DELETE(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
+    const params = await context.params;
     console.log("🗑️ DELETE /api/testimonials/[id] - Starting delete");
     console.log("📝 Testimonial ID:", params.id);
     

@@ -283,7 +283,7 @@ This project is proprietary and confidential.
 ## 👥 Support
 
 For questions or support:
-- Email: sales@bulkleather.com
+- Email: inquiry@houseoflamode.com.com
 - Phone: +1 (234) 567-890
 - WhatsApp: +1 (234) 567-890
 

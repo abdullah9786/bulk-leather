@@ -111,9 +111,9 @@ export default function ContactPage() {
     {
       icon: Mail,
       title: "Email",
-      details: "sales@bulkleather.com",
+      details: "inquiry@houseoflamode.com.com",
       description: "We'll respond within 24 hours",
-      action: "mailto:sales@bulkleather.com",
+      action: "mailto:inquiry@houseoflamode.com.com",
       buttonText: "Send Email",
     },
     {
@@ -400,7 +400,7 @@ export default function ContactPage() {
                     </h4>
                     <p className="text-[var(--color-body)]">
                       Phone: <a href="tel:+1234567890" className="hover:text-[var(--color-accent)] transition-colors">+1 (234) 567-890</a><br />
-                      Email: <a href="mailto:sales@bulkleather.com" className="hover:text-[var(--color-accent)] transition-colors">sales@bulkleather.com</a>
+                      Email: <a href="mailto:inquiry@houseoflamode.com.com" className="hover:text-[var(--color-accent)] transition-colors">inquiry@houseoflamode.com.com</a>
                     </p>
                   </div>
                 </div>

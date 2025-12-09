@@ -120,7 +120,7 @@ ADMIN_CALENDAR_EMAIL=admin-email@bulkleather.com
 GOOGLE_SERVICE_ACCOUNT_EMAIL=bulkleather-calendar@bulkleather-123456.iam.gserviceaccount.com
 GOOGLE_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQC...\n-----END PRIVATE KEY-----\n"
 GOOGLE_CALENDAR_ID=youremail@gmail.com
-ADMIN_CALENDAR_EMAIL=sales@bulkleather.com
+ADMIN_CALENDAR_EMAIL=inquiry@houseoflamode.com.com
 ```
 
 ---
@@ -224,7 +224,7 @@ GOOGLE_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----\
 
 # Calendar Configuration
 GOOGLE_CALENDAR_ID=your-email@gmail.com
-ADMIN_CALENDAR_EMAIL=sales@bulkleather.com
+ADMIN_CALENDAR_EMAIL=inquiry@houseoflamode.com.com
 ```
 
 **Optional (if skipped, uses fallback):**
@@ -295,7 +295,7 @@ Time: 2:00 PM - 2:30 PM EST
 Location: Google Meet link
 Attendees: 
   - user@email.com (Customer)
-  - sales@bulkleather.com (Admin)
+  - inquiry@houseoflamode.com.com (Admin)
 Conference: Google Meet
 Reminders: 1 day, 1 hour, 15 min before
 ```

@@ -126,8 +126,8 @@ export const Footer = () => {
               </li>
               <li className="flex items-center space-x-3 text-sm">
                 <Mail className="w-5 h-5 text-[var(--color-accent)]" />
-                <a href="mailto:sales@bulkleather.com" className="text-[var(--color-body)] hover:text-[var(--color-accent)] transition-colors">
-                  sales@bulkleather.com
+                <a href="mailto:inquiry@houseoflamode.com.com" className="text-[var(--color-body)] hover:text-[var(--color-accent)] transition-colors">
+                  inquiry@houseoflamode.com.com
                 </a>
               </li>
             </ul>

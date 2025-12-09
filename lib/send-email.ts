@@ -87,7 +87,7 @@ export async function sendMeetingConfirmation(emailData: EmailData) {
       <p style="margin-top: 30px;">We look forward to speaking with you!</p>
       
       <p>If you need to reschedule or have any questions, please contact us at:</p>
-      <p>📧 Email: sales@bulkleather.com<br>
+      <p>📧 Email: inquiry@houseoflamode.com.com<br>
       📞 Phone: +1 (234) 567-890</p>
       
       <div class="footer">
@@ -160,7 +160,7 @@ Looking forward to speaking with you!
 
 Best regards,
 BulkLeather Sales Team
-sales@bulkleather.com
+inquiry@houseoflamode.com.com
 +1 (234) 567-890
   `.trim();
 }

@@ -157,7 +157,7 @@ export async function sendMeetingConfirmationEmail(emailData: MeetingEmailData) 
       <div style="background: #EFE7DD; padding: 20px; margin: 25px 0; border-radius: 8px;">
         <p style="margin: 0 0 10px 0; color: #3A2D28; font-weight: bold;">Contact Us:</p>
         <p style="margin: 5px 0; color: #6C5F57; font-size: 14px;">
-          📧 Email: sales@bulkleather.com
+          📧 Email: inquiry@houseoflamode.com.com
         </p>
         <p style="margin: 5px 0; color: #6C5F57; font-size: 14px;">
           📞 Phone: +1 (234) 567-890
@@ -221,7 +221,7 @@ ${emailData.message}
 We look forward to speaking with you!
 
 Contact Us:
-Email: sales@bulkleather.com
+Email: inquiry@houseoflamode.com.com
 Phone: +1 (234) 567-890
 Website: www.bulkleather.com
 

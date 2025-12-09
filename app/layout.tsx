@@ -74,7 +74,7 @@ export default function RootLayout({
     contactPoint: {
       '@type': 'ContactPoint',
       contactType: 'Sales',
-      email: 'sales@bulkleather.com',
+      email: 'inquiry@houseoflamode.com.com',
     },
   };
 

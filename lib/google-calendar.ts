@@ -59,7 +59,7 @@ export async function createGoogleMeetEvent(meetingDetails: MeetingDetails) {
       },
       attendees: [
         { email: meetingDetails.email },
-        { email: 'sales@bulkleather.com' }, // Admin email
+        { email: 'inquiry@houseoflamode.com.com' }, // Admin email
       ],
       conferenceData: {
         createRequest: {
